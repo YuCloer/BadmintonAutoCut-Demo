@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="BadmintonAutoCut 研究图集的图像来源、公开资源范围与可复现性限制。">
+  <title>可复现性与来源 — BadmintonAutoCut</title>
+  <link rel="canonical" href="https://yucloer.github.io/BadmintonAutoCut-Demo/zh/reproducibility.html">
+  <link rel="alternate" hreflang="en" href="https://yucloer.github.io/BadmintonAutoCut-Demo/reproducibility.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://yucloer.github.io/BadmintonAutoCut-Demo/zh/reproducibility.html">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳转到可复现性说明</a>
+  <header class="site-header"><div class="topline">
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">BA</span><span>BadmintonAutoCut <span class="muted">/ 可复现性</span></span></a>
+    <nav class="language-switch" aria-label="语言切换"><a href="../reproducibility.html" lang="en" hreflang="en">English</a><a href="./reproducibility.html" aria-current="page">中文</a></nav>
+  </div></header>
+  <nav class="section-nav" aria-label="网站导航"><div class="section-nav-inner"><a href="./">首页</a><a href="./#gallery">研究图集</a><a href="methods.html">研究方法</a><a href="research-report.html">研究结果</a></div></nav>
+  <main class="site-main" id="main">
+    <article class="section method-prose">
+      <p class="eyebrow">技术参考 · 溯源</p>
+      <h1>可复现性与图像来源</h1>
+      <p>本仓库公开的是经过来源标注的精选视觉证据，不是原始研究数据集，也不是可直接运行的推理包。</p>
+
+      <h2>图像来自哪里</h2>
+      <ul>
+        <li>Court 几何和 CurrentCourt 计数图来自 8 月 7 日的独立来源绑定检查点研究。</li>
+        <li>Pose、候选、状态时间线和边界截图来自 10 月 3 日四源组的冻结可视化。</li>
+        <li>Tail-safe 概率曲线、模型性能图和边界特征曲线是已有离线报告图表。</li>
+        <li>归档消融图来自独立的表格派生研究记录，分母与 Tail-safe 指标不同。</li>
+        <li>TrackNet 散点图是原始高分辨率候选点图；没有将点连接成轨迹。</li>
+      </ul>
+      <p>网站原样复用已有图像，不生成合成检测结果、轨迹、GT 行或置信度曲线。</p>
+
+      <h2>证据清单</h2>
+      <p><a href="../evidence-manifest.json">机器可读证据清单</a>记录每张图的资源路径和尺寸、适用的来源绑定、采样时间和 PTS、模型或阶段、实验状态、支持的主张、限制以及出处。</p>
+      <p>图注中的技术详情可展开查看。主页面尽量减少阅读时的字段噪声，同时保留研究人员所需的信息。</p>
+
+      <h2>公开资源范围</h2>
+      <p>GitHub Pages 从 <code>docs/site/</code> 部署，并受精确的正向文件清单约束。公开包包含精选静帧、报告图表、说明页和聚合对照指标；不包含源视频或代理视频、私有检查点、模型缓存、原始候选表、标注与复核文件、身份信息或本地服务数据。</p>
+      <p>仓库级 <code>ALLOWLIST.json</code> 和站点级<a href="../public-allowlist.json">公开资源清单</a>分别定义源代码仓库与 Pages 的边界。</p>
+
+      <h2>哪些内容可以复现</h2>
+      <ul>
+        <li>读者可以查看每张公开图像的原始存储分辨率，并根据证据清单追溯其主张。</li>
+        <li>可以通过公开数据文件和原始报告对照两个离线模型分支的聚合指标。</li>
+        <li>仓库检查可验证公开文件包、图像、链接、实验指标和双语页面入口。</li>
+        <li>仅凭本仓库无法重新计算数值评测或运行推理，因为未包含源视频、原始缓存、权重和标注文件。</li>
+      </ul>
+
+      <h2>实验彼此独立</h2>
+      <p>10 月 3 日视觉组、10 月 12 日融合评测、8 月 7 日 Court 检查点与 10 月 13 日归档消融有不同的协议和目的。不能将这些图拼成一个虚构的单次运行。编辑参照不证明羽毛球或 Hit 的物理真值，同日研究也没有证明跨日期泛化。</p>
+
+      <h2>生产状态</h2>
+      <p>EventFirst 仍是已实现的生产路径，状态为 <code>PRODUCTION_NOT_READY</code>。公开离线结果中，正式生产 Rally 区间、KeepTimeline 输出和新增导出均为零。本图集不能认证生产级自动剪辑系统。</p>
+      <p><a href="../REPRODUCIBILITY.md">查看维护中的 Markdown 溯源说明</a> · <a href="../evidence-manifest.json">查看证据清单</a> · <a href="../RESEARCH_REPORT.html">查看完整原始研究报告</a></p>
+    </article>
+  </main>
+  <footer class="site-footer"><p>来源与可复现性 · BadmintonAutoCut 研究作品集</p><div class="footer-links"><a href="./">首页</a><a href="methods.html">研究方法</a><a href="#main">返回顶部</a></div></footer>
+</body>
+</html>

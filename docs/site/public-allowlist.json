@@ -1,10 +1,7 @@
 {
-  "schema_version": "github-pages-docs-site-v1",
-  "purpose": "Exact reviewed static payload for the GitHub Pages evidence gallery. No viewer runtime, raw dataset, model, or video is deployed.",
+  "schema_version": "github-pages-bilingual-research-site-v2",
+  "purpose": "Exact reviewed static payload for the bilingual GitHub Pages research portfolio. Interactions use only local, allowlisted files; no raw dataset, model, or video is deployed.",
   "files": [
-    "METHODS.md",
-    "REPRODUCIBILITY.md",
-    "RESEARCH_REPORT.html",
     "assets/evidence/ablation-delta-complete-rally-four-source.png",
     "assets/evidence/boundary-feature-profiles-four-source.png",
     "assets/evidence/court-260807-92-midpoint.jpg",
@@ -25,7 +22,22 @@
     "assets/evidence/tracknet-raw-scatter-four-source.png",
     "evidence-manifest.json",
     "index.html",
+    "methods.html",
+    "METHODS.md",
     "public-allowlist.json",
-    "styles.css"
+    "reproducibility.html",
+    "REPRODUCIBILITY.md",
+    "RESEARCH_REPORT.html",
+    "research-metrics.json",
+    "research-report.html",
+    "site.js",
+    "styles.css",
+    "zh/index.html",
+    "zh/methods.html",
+    "zh/reproducibility.html",
+    "zh/research-report.html"
+  ],
+  "excluded_classes": [
+    null
   ]
 }

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="BadmintonAutoCut 公开离线研究证据的方法、标签、指标、模型分支与限制。">
+  <title>研究方法与评测 — BadmintonAutoCut</title>
+  <link rel="canonical" href="https://yucloer.github.io/BadmintonAutoCut-Demo/zh/methods.html">
+  <link rel="alternate" hreflang="en" href="https://yucloer.github.io/BadmintonAutoCut-Demo/methods.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://yucloer.github.io/BadmintonAutoCut-Demo/zh/methods.html">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳转到研究方法</a>
+  <header class="site-header"><div class="topline">
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">BA</span><span>BadmintonAutoCut <span class="muted">/ 研究方法</span></span></a>
+    <nav class="language-switch" aria-label="语言切换"><a href="../methods.html" lang="en" hreflang="en">English</a><a href="./methods.html" aria-current="page">中文</a></nav>
+  </div></header>
+  <nav class="section-nav" aria-label="网站导航"><div class="section-nav-inner"><a href="./">首页</a><a href="./#gallery">研究图集</a><a href="reproducibility.html">可复现性</a><a href="research-report.html">研究结果</a></div></nav>
+  <main class="site-main" id="main">
+    <article class="section method-prose">
+      <p class="eyebrow">技术参考 · 方法</p>
+      <h1>研究方法与评测范围</h1>
+      <p>本页说明公开图表衡量什么、各自属于哪项研究，以及这些分数不能证明什么。完整原始报告仍按原始形式保存。</p>
+
+      <h2>研究项目划分</h2>
+      <ul>
+        <li><strong>10 月 3 日视觉实验组：</strong>四段录制来源，用于 M6 画面图集和相关四源时序对照。</li>
+        <li><strong>10 月 12 日离线融合报告：</strong><code>PLAYER_TRACKNET_CONTEXT_TAIL_SAFE</code> 及未隔离尾部的对照，参照同日编辑时间线评估。</li>
+        <li><strong>8 月 7 日 Court 检查点：</strong>来源 <code>260807-92</code> 的独立 Court 几何和空间计数研究。</li>
+        <li><strong>10 月 13 日归档消融：</strong>独立的同协议表格计数对照，不属于 Tail-safe 指标表。</li>
+      </ul>
+      <p>这些记录不是一次端到端生产运行。它们可以在同一研究作品集中查看，但指标、日期和结论始终分开。</p>
+
+      <h2>参考标签与状态证据</h2>
+      <p>四源评测使用人工编辑的时间区间，表示剪辑师选择保留的内容；它不代表羽毛球实际处于比赛中的物理真值、已验证 Hit，或通过独立测量确定的回合边界。模型分类与该编辑参照对照。</p>
+      <p><code>UNKNOWN</code> 是明确保留的模型状态。缺失观测不会用邻近检测补齐；单个 Pose 或羽毛球候选缺失也不会直接生成 LIVE 或 DEAD。</p>
+
+      <h2>TrackNet 证据的三个层级</h2>
+      <ol>
+        <li><strong>原始检测候选：</strong>TrackNet V3 产生的单个候选；四源散点图包含 52,861 个未关联点。</li>
+        <li><strong>时间关联轨迹：</strong>依据时间和运动关联规则连接的候选点。公开散点图没有展示这一结果。</li>
+        <li><strong>已验证的羽毛球轨迹：</strong>经独立核对、确认属于羽毛球的轨迹。公开图集没有作此主张。</li>
+      </ol>
+      <p>散点图和聚合图仅保留候选证据，不是飞行曲线，也不能证明每个点都正确归属于 CurrentCourt。</p>
+
+      <h2>离线模型对照</h2>
+      <p>下表的两个分支均来自同一拍摄日的四段视频，编辑区间分母为 148。完整命中要求预测的开始与结束边界分别在参考区间的 ±0.5 秒内。</p>
+      <div class="comparison-table-wrap">
+        <table class="comparison-table">
+          <caption>2026-10-12 离线研究报告中的指标。</caption>
+          <thead><tr><th scope="col">离线分支</th><th scope="col">平衡准确率</th><th scope="col">UNKNOWN</th><th scope="col">START</th><th scope="col">END</th><th scope="col">完整配对</th><th scope="col">精确率</th><th scope="col">召回率</th><th scope="col">LIVE 损失</th><th scope="col">DEAD 保留</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>PLAYER_TRACKNET_CONTEXT_TAIL_SAFE</code></th><td>87.75%</td><td>5.08%</td><td>139/148</td><td>93/148</td><td>79/148</td><td>59.85%</td><td>53.38%</td><td>164.33 秒</td><td>62.85 秒</td></tr>
+            <tr><th scope="row"><code>PLAYER_TRACKNET_CONTEXT</code></th><td>87.44%</td><td>5.46%</td><td>138/148</td><td>100/148</td><td>82/148</td><td>61.65%</td><td>55.41%</td><td>175.60 秒</td><td>51.12 秒</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>指标定义</h2>
+      <ul>
+        <li><strong>平衡准确率：</strong>评测状态类别召回率的平均值。它是分类指标，不是 Rally 区间准确率。</li>
+        <li><strong>UNKNOWN 比例：</strong>评估时明确保留为不确定状态的时间比例。</li>
+        <li><strong>START / END 命中：</strong>在 ±0.5 秒内分别匹配到的边界候选，占 148 个编辑边界的比例。</li>
+        <li><strong>完整区间命中：</strong>开始和结束边界都满足容差的预测区间，按命中数 / 148 个编辑区间报告。</li>
+        <li><strong>配对精确率：</strong>命中的预测区间数除以预测区间数。</li>
+        <li><strong>配对召回率：</strong>命中的编辑区间数除以 148 个参考区间。</li>
+        <li><strong>编辑 LIVE 损失：</strong>被编辑时间线标为 LIVE、但位于预测保留区间以外的秒数。</li>
+        <li><strong>编辑 DEAD 保留：</strong>被标为 DEAD、但仍落在预测保留区间内的秒数。</li>
+      </ul>
+
+      <h2>测得的取舍</h2>
+      <p>与未隔离尾部的上下文分支相比，Tail-safe 少命中 3 个完整区间；但编辑 LIVE 时长少损失 11.27 秒，编辑 DEAD 时长多保留 11.73 秒。此结果适合描述当前样本的保留取舍，不能据此选择生产模型。</p>
+
+      <h2>生产状态与研究限制</h2>
+      <ul>
+        <li>四段时序评测视频都录制于 2026-10-03，结果不能证明其他拍摄日期上的泛化能力。</li>
+        <li>编辑 GT 不是物理 LIVE/DEAD、羽毛球触拍或 Hit 真值。</li>
+        <li>Court、M6、Tail-safe 与归档消融图来自不同研究或阶段。</li>
+        <li>展示的候选帧不能证明全来源 Court 稳定性、CurrentCourt 隔离、人物身份或已验证的羽毛球轨迹。</li>
+        <li>EventFirst 仍是已实现的生产路径，状态为 <code>PRODUCTION_NOT_READY</code>。公开研究没有验收通过的生产 Rally 区间、KeepTimeline 输出或新增导出。</li>
+      </ul>
+      <p><a href="../METHODS.md">查看维护中的 Markdown 方法说明</a> · <a href="../RESEARCH_REPORT.html">查看完整原始研究报告</a> · <a href="../evidence-manifest.json">查看图像来源记录</a></p>
+    </article>
+  </main>
+  <footer class="site-footer"><p>研究方法 · BadmintonAutoCut 研究作品集</p><div class="footer-links"><a href="./">首页</a><a href="reproducibility.html">可复现性</a><a href="#main">返回顶部</a></div></footer>
+</body>
+</html>

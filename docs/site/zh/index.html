@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="BadmintonAutoCut 双语计算机视觉研究作品集：展示来源可追溯的 Court、Pose、TrackNet、时序分析与离线评测证据。">
+  <meta name="theme-color" content="#071310">
+  <title>BadmintonAutoCut — 计算机视觉研究作品集</title>
+  <link rel="canonical" href="https://yucloer.github.io/BadmintonAutoCut-Demo/zh/">
+  <link rel="alternate" hreflang="en" href="https://yucloer.github.io/BadmintonAutoCut-Demo/">
+  <link rel="alternate" hreflang="zh-CN" href="https://yucloer.github.io/BadmintonAutoCut-Demo/zh/">
+  <link rel="alternate" hreflang="x-default" href="https://yucloer.github.io/BadmintonAutoCut-Demo/">
+  <link rel="stylesheet" href="../styles.css">
+  <script src="../site.js" defer></script>
+</head>
+<body data-site-root="../">
+  <a class="skip-link" href="#main">跳转到研究内容</a>
+  <header class="site-header" id="overview">
+    <div class="topline">
+      <a class="brand" href="#overview" aria-label="BadmintonAutoCut 研究作品集首页">
+        <span class="brand-mark" aria-hidden="true">BA</span>
+        <span>BadmintonAutoCut <span class="muted">/ 研究作品集</span></span>
+      </a>
+      <nav class="language-switch" aria-label="语言切换">
+        <a href="../index.html" lang="en" hreflang="en">English</a>
+        <a href="./" aria-current="page" lang="zh-CN">中文</a>
+      </nav>
+    </div>
+  </header>
+
+  <header class="hero" aria-labelledby="page-title">
+    <div class="hero-grid site-header">
+      <div>
+        <p class="eyebrow">计算机视觉 · 体育视频理解</p>
+        <h1 id="page-title">用计算机视觉理解羽毛球回合</h1>
+        <p class="hero-lead">本研究结合场地几何、球员姿态、羽毛球候选检测与时序证据，探索如何从录制的羽毛球视频中定位回合区间。</p>
+        <p class="status-note" role="note"><strong>这里展示的是研究证据，不是生产能力认证。</strong>下方图像来自不同实验。当前实际生产路径仍为 EventFirst，状态为 <code>PRODUCTION_NOT_READY</code>。</p>
+        <div class="hero-actions">
+          <a class="button" href="#gallery">浏览研究图集</a>
+          <a class="button button--quiet" href="research-report.html">查看研究结果</a>
+          <a class="button button--quiet" href="https://github.com/YuCloer/BadmintonAutoCut-Demo">GitHub 仓库</a>
+        </div>
+        <div class="stats" aria-label="Tail-safe 离线实验的部分指标">
+          <div class="stat"><strong>87.75%</strong><span>平衡准确率</span><small>状态分类 · Tail-safe 分支</small></div>
+          <div class="stat"><strong>5.08%</strong><span>UNKNOWN 比例</span><small>保留显式不确定状态</small></div>
+          <div class="stat"><strong>79 / 148</strong><span>命中的编辑回合区间</span><small>双边界均在 ±0.5 秒内</small></div>
+        </div>
+        <p class="scope-line">同一拍摄日 · 四段视频 · 人工编辑时间线作参照 · 离线开发实验</p>
+      </div>
+      <figure class="hero-visual">
+        <a class="image-link" href="../assets/evidence/m6-live-match-26100302-017-084s.png" data-zoom aria-label="放大查看姿态研究画面">
+          <img src="../assets/evidence/m6-live-match-26100302-017-084s.png" width="1920" height="1080" alt="真实羽毛球画面，叠加实验性 Near/Far 姿态框、关键点骨架、TrackNet 候选摘要与彼此独立的时序行" fetchpriority="high" decoding="async">
+        </a>
+        <figcaption><strong>真实研究画面。</strong>同一帧冻结离线可视化中的 Pose、TrackNet 与 M6 叠加信息；这不代表生产链路已通过验证。</figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <nav class="section-nav" aria-label="研究章节导航">
+    <div class="section-nav-inner">
+      <a href="#overview-study">研究问题</a><a href="#architecture">系统架构</a><a href="#court">Court</a><a href="#pose">Pose</a><a href="#shuttle">TrackNet</a><a href="#timeline">时序分析</a><a href="#boundaries">边界</a><a href="#experiments">实验结果</a><a href="#failures">失败分析</a><a href="#methods">方法</a>
+    </div>
+  </nav>
+
+  <main id="main" class="site-main">
+    <section class="section" id="overview-study" aria-labelledby="question-title">
+      <div class="section-heading">
+        <p class="eyebrow">01 · 研究问题</p>
+        <h2 id="question-title">能否从视频证据中判断一个回合何时真正开始和结束？</h2>
+        <p>长时间录制的视频包含等待、准备与死球间隔，增加了回看和整理精彩片段的成本。本项目研究如何利用视觉线索定位有意义的 Rally 区间，同时减少邻场活动的干扰。</p>
+      </div>
+      <div class="intro-grid">
+        <div>
+          <p class="section-intro">固定机位让视角稳定，但低机位、人物重叠、快速且尺寸很小的羽毛球，以及相邻场地都会让单一线索变得不可靠。研究将 Court 几何、匿名球员与 Pose 证据、TrackNet 羽毛球候选以及时序上下文结合起来，再依据编辑时间线研究 LIVE、DEAD、UNKNOWN 状态和 START/END 边界候选。</p>
+          <div class="challenge-grid">
+            <article class="challenge-card"><strong>场地归属</strong><p>邻场也会出现运动与羽毛球候选，在图像空间中看起来很像目标场地。</p></article>
+            <article class="challenge-card"><strong>间歇性观察</strong><p>Pose 与羽毛球观测可能在连续帧间缺失或不确定。</p></article>
+            <article class="challenge-card"><strong>编辑边界</strong><p>剪辑师保留的内容并不等同于物理意义上的球在比赛中或真实 Hit。</p></article>
+          </div>
+        </div>
+        <aside class="panel">
+          <h3>现有证据能够说明什么</h3>
+          <ul>
+            <li><strong>已实现的生产路径：</strong>EventFirst；状态仍为 <code>PRODUCTION_NOT_READY</code>。</li>
+            <li><strong>离线研究：</strong>同一拍摄日四段视频的状态与区间对照结果。</li>
+            <li><strong>正式生产结果：</strong>该研究没有验收通过的 Rally、KeepTimeline 或新增导出。</li>
+          </ul>
+          <p class="small-note">本图集将这些类别分开呈现。检查点通过或离线指标较好，都不等于完整端到端链路已通过。</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="architecture" aria-labelledby="architecture-title">
+      <div class="section-heading">
+        <p class="eyebrow">02 · 系统架构</p>
+        <h2 id="architecture-title">从视觉观测到候选剪辑</h2>
+        <p>这是研究目标架构。下方截图和实验来自不同运行，不能据此声称某一次生产执行已通过所有阶段。</p>
+      </div>
+      <div class="architecture-wrap">
+        <svg class="architecture" viewBox="0 0 980 486" role="img" aria-labelledby="arch-title arch-desc">
+          <title id="arch-title">BadmintonAutoCut 研究流程</title>
+          <desc id="arch-desc">十个阶段：从 1080p 视频、Court 与 CurrentCourt 筛选、Pose 与 TrackNet 证据、时序融合、活动状态与边界候选，到 Rally 区间、KeepTimeline 和视频导出。后续阶段仍需生产验证。</desc>
+          <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#69cd95"/></marker></defs>
+          <path class="arrow" d="M237 63 H255"/><path class="arrow" d="M477 63 H495"/><path class="arrow" d="M717 63 H735"/>
+          <path class="arrow" d="M845 108 V159"/><path class="arrow" d="M735 202 H717"/><path class="arrow" d="M495 202 H477"/><path class="arrow" d="M255 202 H237"/>
+          <path class="arrow arrow-target" d="M127 246 V305"/><path class="arrow arrow-target" d="M237 350 H255"/>
+          <g transform="translate(15 20)"><rect class="node" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">1080p 视频</text><text class="node-sub" x="14" y="51">来源绑定输入</text><text class="node-sub" x="14" y="71">有真实画面证据</text></g>
+          <g transform="translate(255 20)"><rect class="node" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">Court 几何</text><text class="node-sub" x="14" y="51">边线与场地区域</text><text class="node-sub" x="14" y="71">已有检查点证据</text></g>
+          <g transform="translate(495 20)"><rect class="node" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">CurrentCourt 筛选</text><text class="node-sub" x="14" y="51">候选级场地归属</text><text class="node-sub" x="14" y="71">部分研究证据</text></g>
+          <g transform="translate(735 20)"><rect class="node" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">球员检测与 Pose</text><text class="node-sub" x="14" y="51">匿名检测框与关键点</text><text class="node-sub" x="14" y="71">离线画面示例</text></g>
+          <g transform="translate(735 158)"><rect class="node" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">TrackNet V3 候选</text><text class="node-sub" x="14" y="51">羽毛球原始候选点</text><text class="node-sub" x="14" y="71">不是已验证轨迹</text></g>
+          <g transform="translate(495 158)"><rect class="node node-offline" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">时序特征融合</text><text class="node-sub" x="14" y="51">带掩码的证据与上下文</text><text class="node-sub" x="14" y="71">离线研究</text></g>
+          <g transform="translate(255 158)"><rect class="node node-offline" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">LIVE / DEAD / UNKNOWN</text><text class="node-sub" x="14" y="51">编辑状态估计</text><text class="node-sub" x="14" y="71">仅做过离线评估</text></g>
+          <g transform="translate(15 158)"><rect class="node node-offline" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">START / END 候选</text><text class="node-sub" x="14" y="51">边界提议</text><text class="node-sub" x="14" y="71">不是正式 Rally 边界</text></g>
+          <g transform="translate(15 306)"><rect class="node node-target" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">Rally 区间配对</text><text class="node-sub" x="14" y="51">需要验证边界配对</text><text class="node-sub" x="14" y="71">没有生产 Rally 验收</text></g>
+          <g transform="translate(255 306)"><rect class="node node-target" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">KeepTimeline → 导出</text><text class="node-sub" x="14" y="51">仅视频剪辑结果</text><text class="node-sub" x="14" y="71">尚待生产验证</text></g>
+        </svg>
+      </div>
+      <div class="legend-row" aria-label="架构图证据状态">
+        <span class="tag">展示了真实视觉证据</span><span class="tag tag--offline">离线研究</span><span class="tag tag--planned">目标阶段 · 待验证</span>
+      </div>
+      <p class="small-note">绿色与琥珀色表示来自不同研究的证据，不代表同一次生产运行。箭头表示目标信息流。</p>
+    </section>
+
+    <section class="section" id="gallery" aria-labelledby="gallery-title">
+      <div class="section-heading">
+        <p class="eyebrow">03–05 · 视觉证据</p>
+        <h2 id="gallery-title">观察场地、球员与羽毛球候选</h2>
+        <p>所有图像均复用已有研究素材。点击图片可查看原始分辨率；展开图注可查看来源绑定和模型信息。</p>
+      </div>
+
+      <div class="figure-grid">
+        <figure class="evidence-card" id="court">
+          <a class="image-link" href="../assets/evidence/court-260807-92-midpoint.jpg" data-zoom aria-label="放大查看 Court 几何图"><img src="../assets/evidence/court-260807-92-midpoint.jpg" width="1920" height="1080" alt="真实羽毛球画面及 Court 几何叠加，来源绑定的中点检查点结果" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>真实画面中的 Court 几何。</strong>叠加图展示用于定义场地区域的边线；Court 上下文有助于排除邻场检测。<span class="caption-limit">这是记录过的检查点，不能证明所有视频、所有帧的几何都正确。</span>
+            <details><summary>技术详情</summary><p>独立研究：2026-08-07，来源 <code>260807-92</code>。自动 Court 几何与来源绑定的视觉注册在记录的检查点通过。此来源不属于 10 月四源实验组。</p></details>
+          </figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/tracknet-currentcourt-count-map-260807-92.png" data-zoom aria-label="放大查看 CurrentCourt 候选计数图"><img src="../assets/evidence/tracknet-currentcourt-count-map-260807-92.png" width="2535" height="1033" alt="按来源阶段汇总的图像空间计数图，显示 Court 范围内被接纳的 TrackNet 候选" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>CurrentCourt 范围内的候选计数图。</strong>按来源阶段汇总候选点，展示其空间分布，并提供 Court 参照。<span class="caption-limit">这是图像像素坐标的计数图，不是 Court 平面投影、物理速度估计，也不能证明每个候选均归属本场。</span>
+            <details><summary>技术详情</summary><p>独立 Court 范围研究，2026-08-07，来源 <code>260807-92</code>。计数按阶段和图像空间网格聚合。</p></details>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="section-heading" id="pose" style="margin-top:2.5rem">
+        <p class="eyebrow">04 · 球员检测与 Pose</p>
+        <h3>从人物检测框到稀疏的动作描述</h3>
+        <p>Pose 关键点可以描述身体姿态及其随时间的变化。匿名 Near/Far 槽位便于研究渲染器同时展示两个检测结果；它们只是按图像纵坐标划分的实验槽位，不是持久身份或认证过的场地远近侧身份。</p>
+      </div>
+      <div class="figure-grid">
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-live-match-26100302-017-084s.png" data-zoom aria-label="放大查看 Pose 与骨架示例"><img src="../assets/evidence/m6-live-match-26100302-017-084s.png" width="1920" height="1080" alt="羽毛球画面中两个实验性 Near/Far 人物框、关键点骨架与独立活动时间线" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>上下文中的 Pose 与关键点。</strong>人物框和骨架关节提供可用于后续时序分析的空间与动作线索。<span class="caption-limit">Near/Far 不是永久球员跟踪。本冻结示例不能证明动作类别，也不能认证生产 LIVE 预测。</span>
+            <details><summary>技术详情</summary><p>冻结 M6 可视化，来源 <code>26100302</code>，时间 17.084 秒；PTS 2,050,048，帧索引 2,048。实验性图像纵坐标槽位；未用目标 GT 调参。</p></details>
+          </figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-source-midpoint-26100304-278-645s.png" data-zoom aria-label="放大查看双槽位 Pose 中点画面"><img src="../assets/evidence/m6-source-midpoint-26100304-278-645s.png" width="1920" height="1080" alt="羽毛球场中点画面，显示两个实验性人物检测框和 Pose 骨架" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>另一来源位置中的双人检测。</strong>该画面展示可为活动上下文提供线索的人物分布。<span class="caption-limit">单帧无法证明身份连续性或可靠场地归属；此处羽毛球输出仍未确定。</span>
+            <details><summary>技术详情</summary><p>冻结 M6 可视化，来源 <code>26100304</code>，时间 278.645 秒；PTS 33,437,404，帧索引 33,404。与上方 Court 检查点来自不同来源。</p></details>
+          </figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-source-start-26100302-000-000s.png" data-zoom aria-label="放大查看来源开头画面"><img src="../assets/evidence/m6-source-start-26100302-000-000s.png" width="1920" height="1080" alt="来源开头画面，显示 Pose、TrackNet 与 M6 状态叠加，且说明它们属于独立离线证据" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>视频开头帧不等于 START 事件。</strong>该图展示冻结渲染器如何处理观测稀疏的早期帧。<span class="caption-limit">模型输出为 UNKNOWN，槽位未确定；文件起点本身不会产生 Rally 边界。</span>
+            <details><summary>技术详情</summary><p>来源 <code>26100302</code>，时间 0.000 秒；PTS 0，帧索引 0。冻结 zero-shot M6 可视化；编辑 GT 为 DEAD，M6 为 UNKNOWN。</p></details>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="section-heading" id="shuttle" style="margin-top:2.7rem">
+        <p class="eyebrow">05 · 羽毛球候选检测</p>
+        <h3>TrackNet 提出点位，时间关联是另一个问题</h3>
+        <p>四源散点图包含 52,861 个原始检测候选。它是现有编辑 LIVE 区间内候选点的空间汇总，不是一条飞行轨迹。</p>
+      </div>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="../assets/evidence/tracknet-raw-scatter-four-source.png" data-zoom aria-label="放大查看 TrackNet 原始候选散点图"><img src="../assets/evidence/tracknet-raw-scatter-four-source.png" width="2700" height="1620" alt="四图并列的图像空间散点，展示四段视频中的 52,861 个未关联 TrackNet V3 原始候选点" loading="lazy" decoding="async"></a>
+        <span class="image-cta">点击查看原始分辨率图像</span>
+        <figcaption><strong>四个来源中的 52,861 个 TrackNet V3 原始候选点。</strong>图中保留原始图像空间坐标轴和候选置信度颜色。<span class="caption-limit">这些只是原始候选点，没有连接为轨迹、插值，也未验证为真实羽毛球运动轨迹。</span>
+          <details><summary>技术详情</summary><p>拍摄于 2026-10-03 的四个来源：<code>26100301</code>（10,635）、<code>26100302</code>（15,382）、<code>26100303</code>（12,222）和 <code>26100304</code>（14,622）。逐源计数与溯源记录见<a href="../evidence-manifest.json">证据清单</a>。</p></details>
+        </figcaption>
+      </figure>
+      <div class="figure-grid">
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/tracknet-aggregated-heatmap-four-source.png" data-zoom aria-label="放大查看 TrackNet 聚合热力图"><img src="../assets/evidence/tracknet-aggregated-heatmap-four-source.png" width="2250" height="900" alt="按空间网格聚合的 TrackNet 候选计数，分别汇总 LIVE 与 DEAD 编辑区间" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>候选点聚合热力图。</strong>空间分箱突出显示报告数据中的候选点聚集位置。<span class="caption-limit">分箱会丢失单点时间与关联信息；它不同于按时间连接的轨迹。</span>
+            <details><summary>技术详情</summary><p>来自 2026-10-03 四源离线报告的原始图表，按编辑状态汇总候选点位置。</p></details>
+          </figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-false-live-26100303-006-740s.png" data-zoom aria-label="放大查看 TrackNet 候选与 False LIVE 示例"><img src="../assets/evidence/m6-false-live-26100303-006-740s.png" width="1920" height="1080" alt="真实羽毛球画面叠加一个 TrackNet 原始候选，冻结 M6 输出为 False LIVE 而编辑 GT 为 DEAD" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>候选点仍可能伴随 False LIVE。</strong>示例中编辑 GT 为 DEAD，而冻结 M6 输出为 FALSE LIVE。<span class="caption-limit">单个叠加图不能确认具体失误原因，也不能把候选点认证为羽毛球位置。</span>
+            <details><summary>技术详情</summary><p>来源 <code>26100303</code>，时间 6.740 秒；PTS 808,808，帧索引 808。M6 zero-shot 输出；TrackNet 点仍是未关联的原始候选。</p></details>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="timeline" aria-labelledby="timeline-title">
+      <div class="section-heading">
+        <p class="eyebrow">06 · 时序活动识别</p>
+        <h2 id="timeline-title">活动状态具有时间上下文，不确定性应保留</h2>
+        <p>时序模型跨时间比较上下文。下图来自不同的离线输出，不能被看作同一次模型运行。</p>
+      </div>
+      <ul class="state-legend" aria-label="状态颜色图例">
+        <li><span class="swatch swatch--live" aria-hidden="true"></span>LIVE</li><li><span class="swatch swatch--dead" aria-hidden="true"></span>DEAD</li><li><span class="swatch swatch--unknown" aria-hidden="true"></span>UNKNOWN</li>
+      </ul>
+      <div class="timeline-grid">
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-gt-state-timeline-four-source.png" data-zoom aria-label="放大查看 GT 与 M6 状态时间线"><img src="../assets/evidence/m6-gt-state-timeline-four-source.png" width="2100" height="1200" alt="四段视频的全来源时间线，分别展示编辑 GT 和冻结 M6 的 LIVE、DEAD、UNKNOWN 状态行" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>编辑 GT 与分类 M6 状态并列展示。</strong>各行让我们能够查看整段来源中的一致区域和 UNKNOWN 区域。<span class="caption-limit">这是 M6 可视化研究，与用于首页指标的 Tail-safe 分支不同。</span>
+            <details><summary>技术详情</summary><p>拍摄于 2026-10-03 的四源组。图中 LIVE 为绿色、DEAD 为蓝灰色、UNKNOWN 为琥珀色。GT 是编辑保留时间线，不是羽毛球或 Hit 的物理真值。</p></details>
+          </figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/tail-safe-probability-timeline-four-source.png" data-zoom aria-label="放大查看 Tail-safe 概率时间线"><img src="../assets/evidence/tail-safe-probability-timeline-four-source.png" width="2080" height="1170" alt="Tail-safe 离线模型分支的四源 P(LIVE) 概率曲线，并标出隔离的尾段区域" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>Tail-safe 的 P(LIVE) 曲线。</strong>概率覆盖每段完整来源，原图还标出了隔离的尾部区域。<span class="caption-limit">这是与左侧 M6 分类状态图不同的离线分支；两张图没有拼接成同一次运行。</span>
+            <details><summary>技术详情</summary><p>模型分支：<code>PLAYER_TRACKNET_CONTEXT_TAIL_SAFE</code>；同一拍摄日四段视频。指标参照编辑状态，不能证明跨日期泛化。</p></details>
+          </figcaption>
+        </figure>
+      </div>
+      <p class="timeline-note">全站颜色固定：<strong style="color:var(--live)">LIVE</strong>、<strong style="color:var(--dead)">DEAD</strong>、<strong style="color:var(--unknown)">UNKNOWN</strong>。缺失观测仍然缺失；不会将 UNKNOWN 静默改写成其他状态。</p>
+    </section>
+
+    <section class="section" id="boundaries" aria-labelledby="boundary-title">
+      <div class="section-heading">
+        <p class="eyebrow">07 · START / END 证据</p>
+        <h2 id="boundary-title">边界候选是提议，不是完整 Rally</h2>
+        <p>边界特征曲线描述编辑边界附近的特征变化。冻结的 START 和 END 截图展示单个候选，不代表边界配对正确或区间正式通过验收。</p>
+      </div>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="../assets/evidence/boundary-feature-profiles-four-source.png" data-zoom aria-label="放大查看边界特征曲线"><img src="../assets/evidence/boundary-feature-profiles-four-source.png" width="2100" height="1050" alt="对齐到编辑 START 与 END 边界时刻前后的 Pose 和 TrackNet 特征曲线" loading="lazy" decoding="async"></a>
+        <span class="image-cta">点击查看原图</span>
+        <figcaption><strong>编辑边界附近的特征曲线。</strong>曲线展示相对对齐边界时刻的前后变化。<span class="caption-limit">这是描述性曲线，不是预测事件时间，也没有证明特征变化会导致边界。</span>
+          <details><summary>技术详情</summary><p>来自 2026-10-03 四源离线研究。START 和 END 分别评估；与编辑时间对齐不等于物理事件真值。</p></details>
+        </figcaption>
+      </figure>
+      <div class="figure-grid">
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-26100302-start-candidate-009-510s.png" data-zoom aria-label="放大查看 START 候选截图"><img src="../assets/evidence/m6-26100302-start-candidate-009-510s.png" width="1920" height="1080" alt="冻结 M6 START 候选帧及其附近的编辑状态时间线" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>START 候选。</strong>图中展示一个冻结候选及其邻近画面和时序上下文。<span class="caption-limit">仅是候选，没有升级为正式 Rally 边界。</span>
+            <details><summary>技术详情</summary><p>来源 <code>26100302</code>；候选事件时间 9.500 秒，最近采样帧 9.5095 秒；PTS 1,141,140，帧索引 1,140。编辑 GT 为 DEAD，采样 M6 为 FALSE LIVE。</p></details>
+          </figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-26100302-end-candidate-011-011s.png" data-zoom aria-label="放大查看 END 候选截图"><img src="../assets/evidence/m6-26100302-end-candidate-011-011s.png" width="1920" height="1080" alt="冻结 M6 END 候选帧及其附近的编辑状态时间线" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>END 候选。</strong>另一示例展示最接近提议结束事件的采样帧。<span class="caption-limit">候选不等于物理结束，也不等于边界配对成功。</span>
+            <details><summary>技术详情</summary><p>来源 <code>26100302</code>；候选事件时间 11.000 秒，最近采样帧 11.011 秒；PTS 1,321,320，帧索引 1,320。没有据此宣称正式 Rally 边界。</p></details>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="experiments" aria-labelledby="experiments-title">
+      <div class="section-heading">
+        <p class="eyebrow">08 · 实验结果</p>
+        <h2 id="experiments-title">比较两个模型分支，不拼接各自最好的分数</h2>
+        <p>两个分支均采用同一组四源、单拍摄日编辑评测。状态分类和完整区间匹配是不同任务，应使用不同指标。</p>
+      </div>
+      <div class="control-block" aria-label="交互式离线模型对照">
+        <p class="control-label">模型分支</p>
+        <div class="button-group" role="group" aria-label="选择离线模型分支">
+          <button class="choice-button" type="button" data-arm-button="tail-safe" aria-pressed="true">Tail-safe 时序上下文</button>
+          <button class="choice-button" type="button" data-arm-button="unguarded" aria-pressed="false">未隔离尾部的时序上下文</button>
+        </div>
+        <p class="control-label">指标视图</p>
+        <div class="button-group" role="group" aria-label="选择指标类别">
+          <button class="choice-button" type="button" data-metric-view="state" aria-pressed="true">状态指标</button>
+          <button class="choice-button" type="button" data-metric-view="boundaries" aria-pressed="false">边界配对</button>
+          <button class="choice-button" type="button" data-metric-view="retention" aria-pressed="false">编辑保留时长</button>
+        </div>
+      </div>
+      <div class="study-readout" aria-live="polite" aria-atomic="true">
+        <h3 data-study-name>带尾部隔离的 Player + TrackNet 时序上下文</h3>
+        <p class="study-status" data-study-status>离线开发实验 · 四段视频 · 2026-10-03</p>
+        <dl class="metric-panel metric-grid" data-metric-panel="state">
+          <div class="metric-item"><dt>平衡准确率</dt><dd data-study-value="balanced_accuracy">87.75%</dd></div>
+          <div class="metric-item"><dt>UNKNOWN 比例</dt><dd data-study-value="unknown_ratio">5.08%</dd></div>
+          <div class="metric-item"><dt>LIVE 召回率</dt><dd data-study-value="live_recall">84.33%</dd></div>
+          <div class="metric-item"><dt>DEAD 召回率</dt><dd data-study-value="dead_recall">91.18%</dd></div>
+        </dl>
+        <dl class="metric-panel metric-grid" data-metric-panel="boundaries" hidden>
+          <div class="metric-item"><dt>START 候选命中</dt><dd data-study-value="start_matches">139/148</dd></div>
+          <div class="metric-item"><dt>END 候选命中</dt><dd data-study-value="end_matches">93/148</dd></div>
+          <div class="metric-item"><dt>完整编辑区间命中</dt><dd data-study-value="matched_intervals">79/148</dd></div>
+          <div class="metric-item"><dt>配对精确率 / 召回率</dt><dd><span data-study-value="precision">59.85%</span> / <span data-study-value="recall">53.38%</span></dd></div>
+        </dl>
+        <dl class="metric-panel metric-grid" data-metric-panel="retention" hidden>
+          <div class="metric-item"><dt>编辑 LIVE 时长损失</dt><dd data-study-value="editorial_live_lost_seconds">164.33 秒</dd></div>
+          <div class="metric-item"><dt>编辑 DEAD 保留时长</dt><dd data-study-value="editorial_dead_kept_seconds">62.85 秒</dd></div>
+        </dl>
+        <noscript><p class="no-script">指标切换需要启用 JavaScript。完整双分支对照表和原始图表仍可阅读。</p></noscript>
+      </div>
+      <div class="comparison-table-wrap">
+        <table class="comparison-table">
+          <caption>同一四源离线实验中的精确值。完整区间要求两个边界均在 ±0.5 秒内命中。</caption>
+          <thead><tr><th scope="col">离线分支</th><th scope="col">平衡准确率</th><th scope="col">UNKNOWN</th><th scope="col">START</th><th scope="col">END</th><th scope="col">完整配对</th><th scope="col">精确率</th><th scope="col">召回率</th><th scope="col">LIVE 损失</th><th scope="col">DEAD 保留</th></tr></thead>
+          <tbody>
+            <tr data-study-row="tail-safe" class="is-selected"><th scope="row">Tail-safe</th><td>87.75%</td><td>5.08%</td><td>139/148</td><td>93/148</td><td>79/148</td><td>59.85%</td><td>53.38%</td><td>164.33 秒</td><td>62.85 秒</td></tr>
+            <tr data-study-row="unguarded"><th scope="row">未隔离尾部</th><td>87.44%</td><td>5.46%</td><td>138/148</td><td>100/148</td><td>82/148</td><td>61.65%</td><td>55.41%</td><td>175.60 秒</td><td>51.12 秒</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tradeoff-note"><strong>取舍有实际测量：</strong>Tail-safe 少命中 3 个完整区间，但少漏掉 11.27 秒编辑 LIVE 时长，并多保留 11.73 秒编辑 DEAD 时长。87.75% 是状态分类的平衡准确率，不是 Rally 检测准确率。</p>
+      <div class="figure-grid" style="margin-top:1.2rem">
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/model-performance-comparison-four-source.png" data-zoom aria-label="放大查看模型性能对照图"><img src="../assets/evidence/model-performance-comparison-four-source.png" width="2380" height="840" alt="报告中离线状态指标与独立 START、END 边界 F1 对照图" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>状态与边界指标并列展示。</strong>该图说明状态识别分数较高，不代表边界配对同样准确。<span class="caption-limit">原图包含报告中的多个模型；上方表格只比较同协议的两个指定分支。</span>
+            <details><summary>技术详情</summary><p>边界柱形图使用 ±0.5 秒容差计算合并 START/END F1。定义与协议见<a href="research-report.html">研究结果页面</a>和原始报告。</p></details>
+          </figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/ablation-delta-complete-rally-four-source.png" data-zoom aria-label="放大查看归档消融对照图"><img src="../assets/evidence/ablation-delta-complete-rally-four-source.png" width="1260" height="560" alt="归档同协议消融实验中完整 Rally 边界配对数量变化图" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>已归档消融结果。</strong>原图汇总一个归档对照中完整边界配对数量的变化。<span class="caption-limit">这是单独的 2026-10-13 归档消融，并非 Tail-safe 表格的数值补充，也不证明生产运行成功。</span>
+            <details><summary>技术详情</summary><p>同日四源表格派生的对照实验。计数差协议不同于上方的区间召回率、精确率和保留时长。</p></details>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="failures" aria-labelledby="failures-title">
+      <div class="section-heading">
+        <p class="eyebrow">09 · 失败案例分析</p>
+        <h2 id="failures-title">展示仍然困难的情况</h2>
+        <p>失败案例本身也是研究结果。每个例子都将观察到的输出与可能的解释分开。</p>
+      </div>
+      <div class="failure-grid">
+        <article class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-false-live-26100303-006-740s.png" data-zoom aria-label="放大查看 False LIVE 示例"><img src="../assets/evidence/m6-false-live-26100303-006-740s.png" width="1920" height="1080" alt="真实羽毛球画面中的 TrackNet 原始候选，编辑 GT 为 DEAD，M6 输出为 FALSE LIVE" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <div class="failure-copy"><span class="failure-kind">观察到的失败</span><h3>False LIVE</h3><p><strong>观察：</strong>编辑 GT 为 DEAD，冻结 M6 状态为 FALSE LIVE。</p><p><strong>可能因素：</strong>单个原始候选不足以识别与目标场地相关的活动。单帧无法确定具体因果因素。</p><p><strong>研究方向：</strong>在保留不确定性的前提下评估候选归属和时序支持。</p></div>
+        </article>
+        <article class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-unknown-far-missing-26100304-000-234s.png" data-zoom aria-label="放大查看 Far Pose 缺失与 UNKNOWN 示例"><img src="../assets/evidence/m6-unknown-far-missing-26100304-000-234s.png" width="1920" height="1080" alt="羽毛球视频开头画面中 Near 槽位存在、Far 槽位缺失，M6 输出 UNKNOWN" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <div class="failure-copy"><span class="failure-kind">观察到的不确定性</span><h3>Far Pose 缺失</h3><p><strong>观察：</strong>一个 Pose 槽位缺失，M6 状态为 UNKNOWN。</p><p><strong>解释：</strong>缺失观测保持可见；页面不会补造姿态或强行指定状态。</p><p><strong>待研究问题：</strong>哪些合法的 Court 范围线索可以支持此处的时序判断？</p></div>
+        </article>
+        <article class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-26100304-last-sample-557-257s.png" data-zoom aria-label="放大查看视频尾部 UNKNOWN 样例"><img src="../assets/evidence/m6-26100304-last-sample-557-257s.png" width="1920" height="1080" alt="视频尾部最后映射帧附近，Near 与 Far Pose 槽位均无效，输出 UNKNOWN" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <div class="failure-copy"><span class="failure-kind">观察到的不确定性</span><h3>视频尾部的 UNKNOWN</h3><p><strong>观察：</strong>最后映射样本为 UNKNOWN，且没有有效 Near/Far 槽位。</p><p><strong>解释：</strong>文件结束是视频边界，不代表编辑 END 或物理回合结束。</p><p><strong>研究方向：</strong>从观测证据学习边界，证据不足时保留尾部不确定性。</p></div>
+        </article>
+        <article class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-26100302-kwyoke-candidate-012-279s.png" data-zoom aria-label="放大查看 Kwyoke 事件候选"><img src="../assets/evidence/m6-26100302-kwyoke-candidate-012-279s.png" width="1920" height="1080" alt="真实视频帧中显示实验性 Near/Far Pose、TrackNet 原始候选、Kwyoke 事件提议与独立状态时间线" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <div class="failure-copy"><span class="failure-kind">未验证的事件候选</span><h3>Kwyoke 不是已验证 Hit 真值</h3><p><strong>观察：</strong>事件提议与原始候选及实验性 Pose 槽位一同显示。</p><p><strong>限制：</strong>物理 Hit 和球员归属未验证，也没有生成合法模型窗口。</p><p><strong>研究方向：</strong>继续区分候选、支持证据与已验证事件。</p></div>
+        </article>
+      </div>
+      <div class="figure-grid" style="margin-top:1rem">
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-26100302-start-candidate-009-510s.png" data-zoom aria-label="放大查看 START 边界失败样例"><img src="../assets/evidence/m6-26100302-start-candidate-009-510s.png" width="1920" height="1080" alt="编辑标签 DEAD、附近状态为 FALSE LIVE 的 START 候选样例" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>边界定位误差。</strong>某个 START 候选邻近一个编辑 DEAD / FALSE LIVE 样例。<span class="caption-limit">这是候选检查，不是完整配对区间。</span></figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="../assets/evidence/m6-26100302-end-candidate-011-011s.png" data-zoom aria-label="放大查看 END 边界候选样例"><img src="../assets/evidence/m6-26100302-end-candidate-011-011s.png" width="1920" height="1080" alt="显示局部状态上下文的 END 候选样例" loading="lazy" decoding="async"></a>
+          <span class="image-cta">点击查看原图</span>
+          <figcaption><strong>配对是独立阶段。</strong>即使 END 提议看起来合理，也需要按明确区间协议完成配对和评测。<span class="caption-limit">该截图不能证明正式 Rally 已结束。</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="methods" aria-labelledby="methods-title">
+      <div class="section-heading">
+        <p class="eyebrow">10 · 方法与可复现性</p>
+        <h2 id="methods-title">按所需深度阅读证据</h2>
+        <p>主图集侧重解释发现；独立页面保留指标定义、来源、实验范围与技术详情。</p>
+      </div>
+      <div class="resource-grid">
+        <a class="resource-card" href="methods.html"><strong>研究方法与评测</strong><span>研究协议、标签、指标、模型分支与实验限制。</span></a>
+        <a class="resource-card" href="reproducibility.html"><strong>可复现性与来源</strong><span>图像的复用方式，以及哪些内容没有公开。</span></a>
+        <a class="resource-card" href="research-report.html"><strong>研究结果</strong><span>易读摘要，并链接到完整原始报告。</span></a>
+        <a class="resource-card" href="../RESEARCH_REPORT.html"><strong>完整原始研究报告</strong><span>以报告原始语言保存的完整技术内容。</span></a>
+        <a class="resource-card" href="../evidence-manifest.json"><strong>证据清单</strong><span>逐图来源、时间、模型阶段、主张与限制。</span></a>
+        <a class="resource-card" href="https://github.com/YuCloer/BadmintonAutoCut-Demo"><strong>源代码仓库</strong><span>README、网站资源和公开资源检查。</span></a>
+      </div>
+      <p class="small-note">公开包仅包含精选静帧与报告图表，不包含源视频、模型权重、原始缓存或标注文件。</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>BadmintonAutoCut · 计算机视觉研究作品集 · EventFirst / <code>PRODUCTION_NOT_READY</code></p>
+    <div class="footer-links"><a href="https://github.com/YuCloer/BadmintonAutoCut-Demo">GitHub</a><a href="methods.html">研究方法</a><a href="#overview">返回顶部</a></div>
+  </footer>
+  <dialog class="image-dialog" id="image-dialog" aria-label="原始分辨率研究图像">
+    <div class="dialog-bar"><button class="dialog-close" type="button" data-dialog-close aria-label="关闭图像">×</button></div>
+    <img alt="放大后的研究图像">
+  </dialog>
+</body>
+</html>

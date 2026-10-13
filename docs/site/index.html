@@ -3,220 +3,405 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Source-attributed BadmintonAutoCut computer-vision research figures, model screenshots, timelines, and ablation results.">
-  <title>BadmintonAutoCut — Visual Research Evidence</title>
+  <meta name="description" content="A bilingual computer-vision research portfolio for badminton rally detection, with source-attributed Court, Pose, TrackNet, temporal, and offline evaluation evidence.">
+  <meta name="theme-color" content="#071310">
+  <title>BadmintonAutoCut — Computer Vision Research Portfolio</title>
+  <link rel="canonical" href="https://yucloer.github.io/BadmintonAutoCut-Demo/">
+  <link rel="alternate" hreflang="en" href="https://yucloer.github.io/BadmintonAutoCut-Demo/">
+  <link rel="alternate" hreflang="zh-CN" href="https://yucloer.github.io/BadmintonAutoCut-Demo/zh/">
+  <link rel="alternate" hreflang="x-default" href="https://yucloer.github.io/BadmintonAutoCut-Demo/">
   <link rel="stylesheet" href="styles.css">
+  <script src="site.js" defer></script>
 </head>
-<body>
-  <a class="skip-link" href="#main">Skip to evidence</a>
-  <header class="hero" id="overview">
-    <div class="hero__inner">
-      <p class="eyebrow">BADMINTONAUTOCUT · RESEARCH SHOWCASE</p>
-      <h1>Automatic Badminton Rally Detection &amp; Video Editing</h1>
-      <p class="hero__lead">Real source frames, Court and Pose overlays, TrackNet candidate maps, full-source state timelines, and measured offline comparisons.</p>
-      <div class="status-note" role="note">
-        <strong>Research evidence, not production certification.</strong>
-        The frame examples and M6 studies are historical offline visualizations. EventFirst remains the implemented production path with status <code>PRODUCTION_NOT_READY</code>.
-      </div>
-      <div class="hero__links">
-        <a class="button" href="https://github.com/YuCloer/BadmintonAutoCut-Demo">GitHub repository</a>
-        <a class="button button--quiet" href="RESEARCH_REPORT.html">Read the full report</a>
-        <a class="button button--quiet" href="METHODS.md">Methods and scope</a>
-      </div>
+<body data-site-root="./">
+  <a class="skip-link" href="#main">Skip to research</a>
+  <header class="site-header" id="overview">
+    <div class="topline">
+      <a class="brand" href="#overview" aria-label="BadmintonAutoCut research portfolio home">
+        <span class="brand-mark" aria-hidden="true">BA</span>
+        <span>BadmintonAutoCut <span class="muted">/ Research</span></span>
+      </a>
+      <nav class="language-switch" aria-label="Language">
+        <a href="./" aria-current="page" lang="en">English</a>
+        <a href="zh/" lang="zh-CN" hreflang="zh-CN">中文</a>
+      </nav>
     </div>
   </header>
 
-  <nav class="section-nav" aria-label="Gallery sections">
-    <a href="#court">Court</a>
-    <a href="#pose">Player and Pose</a>
-    <a href="#shuttle">Shuttle</a>
-    <a href="#timeline">Timeline</a>
-    <a href="#experiments">Experiments</a>
-    <a href="#failures">Failure analysis</a>
-    <a href="#methods">Methods</a>
+  <header class="hero" aria-labelledby="page-title">
+    <div class="hero-grid site-header">
+      <div>
+        <p class="eyebrow">Computer vision · Sports video understanding</p>
+        <h1 id="page-title">Understanding Badminton Rallies Through Computer Vision</h1>
+        <p class="hero-lead">A research project combining court geometry, player pose, shuttlecock candidates, and temporal evidence to study rally intervals in recorded badminton video.</p>
+        <p class="status-note" role="note"><strong>Research evidence, not production certification.</strong> The figures below come from separate experiments. EventFirst remains the implemented production path with status <code>PRODUCTION_NOT_READY</code>.</p>
+        <div class="hero-actions">
+          <a class="button" href="#gallery">Explore the research gallery</a>
+          <a class="button button--quiet" href="research-report.html">Research results</a>
+          <a class="button button--quiet" href="https://github.com/YuCloer/BadmintonAutoCut-Demo">GitHub repository</a>
+        </div>
+        <div class="stats" aria-label="Selected Tail-safe offline study metrics">
+          <div class="stat"><strong>87.75%</strong><span>Balanced accuracy</span><small>State classification · Tail-safe arm</small></div>
+          <div class="stat"><strong>5.08%</strong><span>UNKNOWN ratio</span><small>Uncertain frames remain explicit</small></div>
+          <div class="stat"><strong>79 / 148</strong><span>Matched editorial intervals</span><small>Both boundaries within ±0.5 s</small></div>
+        </div>
+        <p class="scope-line">One recording date · four videos · human-edited editorial reference · offline development study</p>
+      </div>
+      <figure class="hero-visual">
+        <a class="image-link" href="assets/evidence/m6-live-match-26100302-017-084s.png" data-zoom aria-label="Open full-resolution Pose research frame">
+          <img src="assets/evidence/m6-live-match-26100302-017-084s.png" width="1920" height="1080" alt="Real badminton frame with experimental Near and Far Pose boxes, keypoint skeletons, TrackNet candidate summary, and separate state timelines" fetchpriority="high" decoding="async">
+        </a>
+        <figcaption><strong>Real research frame.</strong> Pose, TrackNet, and M6 overlays from one frozen offline visualization; the displayed channels do not certify a production run.</figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <nav class="section-nav" aria-label="Research sections">
+    <div class="section-nav-inner">
+      <a href="#overview-study">Question</a><a href="#architecture">Architecture</a><a href="#court">Court</a><a href="#pose">Pose</a><a href="#shuttle">TrackNet</a><a href="#timeline">Temporal</a><a href="#boundaries">Boundaries</a><a href="#experiments">Results</a><a href="#failures">Failures</a><a href="#methods">Methods</a>
+    </div>
   </nav>
 
-  <main id="main" class="page-shell">
-    <section class="section section--intro" aria-labelledby="scope-title">
-      <div>
-        <p class="eyebrow">WHAT YOU ARE SEEING</p>
-        <h2 id="scope-title">Overview: a visual record of separate research studies</h2>
-        <p>The Oct 3 cohort contains four sources: <code>26100301</code>–<code>26100304</code>. The Court checkpoint and Court-admitted spatial map belong to a separate Aug 7 source, <code>260807-92</code>. The Oct 13 ablation is another archived table-derived comparison.</p>
-        <p>Editorial GT is a human-edited timeline, not physical LIVE/DEAD or Hit truth. Click any image to open its original full-resolution file. Every figure has source, model/stage, experiment state, and limits recorded in the <a href="evidence-manifest.json">evidence manifest</a>.</p>
+  <main id="main" class="site-main">
+    <section class="section" id="overview-study" aria-labelledby="question-title">
+      <div class="section-heading">
+        <p class="eyebrow">01 · The research question</p>
+        <h2 id="question-title">Can video evidence identify when a rally is actually underway?</h2>
+        <p>Long recordings contain pauses, preparation, and dead-ball time that can make useful highlights harder to review. This project studies how visual evidence can help locate meaningful Rally intervals while avoiding activity from neighboring courts.</p>
       </div>
-      <aside class="scope-card">
-        <h3>Research pipeline</h3>
-        <ol class="pipeline">
-          <li>1080p source frame</li>
-          <li>Court and ownership evidence</li>
-          <li>Player boxes and Pose</li>
-          <li>TrackNet raw candidates</li>
-          <li>LIVE / DEAD / UNKNOWN study</li>
-          <li>START / END candidates</li>
-          <li>Rally → KeepTimeline → export</li>
-        </ol>
-        <p class="small-note">The public screenshots cover research stages. They do not mean every production gate above has passed.</p>
-      </aside>
+      <div class="intro-grid">
+        <div>
+          <p class="section-intro">A fixed camera gives stable views, but low angles, player overlap, a tiny fast shuttle, and adjacent courts make any single cue unreliable. The research combines Court geometry, anonymous player and Pose evidence, TrackNet shuttle candidates, and temporal context. It then studies LIVE, DEAD, UNKNOWN, and candidate START/END boundaries against editorial timelines.</p>
+          <div class="challenge-grid">
+            <article class="challenge-card"><strong>Court ownership</strong><p>Nearby courts can contain motion and shuttle detections that look relevant in image space.</p></article>
+            <article class="challenge-card"><strong>Intermittent evidence</strong><p>Pose and shuttle observations can be missing or uncertain from one frame to the next.</p></article>
+            <article class="challenge-card"><strong>Editorial boundaries</strong><p>What an editor keeps is not identical to physical shuttle-in-play or Hit truth.</p></article>
+          </div>
+        </div>
+        <aside class="panel">
+          <h3>What the evidence supports today</h3>
+          <ul>
+            <li><strong>Implemented production:</strong> EventFirst; still <code>PRODUCTION_NOT_READY</code>.</li>
+            <li><strong>Offline research:</strong> four same-date videos with measured state and interval comparisons.</li>
+            <li><strong>Formal production output:</strong> no accepted Rally, KeepTimeline, or new export in the showcased study.</li>
+          </ul>
+          <p class="small-note">The gallery keeps these categories separate. A successful checkpoint or offline score is not a full end-to-end release result.</p>
+        </aside>
+      </div>
     </section>
 
-    <section class="section" id="source-positions" aria-labelledby="position-title">
+    <section class="section" id="architecture" aria-labelledby="architecture-title">
       <div class="section-heading">
-        <p class="eyebrow">SOURCE COVERAGE</p>
-        <h2 id="position-title">Start and middle frames from real videos</h2>
-        <p>These are distinct frozen model frames. The final mapped sample appears with the failure examples below.</p>
+        <p class="eyebrow">02 · System architecture</p>
+        <h2 id="architecture-title">From visual observations to a candidate edit</h2>
+        <p>This is the research target architecture. The screenshots and studies below come from separate runs; the diagram does not claim that one production execution has passed every stage.</p>
+      </div>
+      <div class="architecture-wrap">
+        <svg class="architecture" viewBox="0 0 980 486" role="img" aria-labelledby="arch-title arch-desc">
+          <title id="arch-title">BadmintonAutoCut research pipeline</title>
+          <desc id="arch-desc">A ten-stage diagram from 1080p video through Court and CurrentCourt filtering, Pose and TrackNet evidence, temporal fusion, activity states and boundary candidates, Rally intervals, and KeepTimeline video export. Later steps require further production validation.</desc>
+          <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#69cd95"/></marker></defs>
+          <path class="arrow" d="M237 63 H255"/><path class="arrow" d="M477 63 H495"/><path class="arrow" d="M717 63 H735"/>
+          <path class="arrow" d="M845 108 V159"/><path class="arrow" d="M735 202 H717"/><path class="arrow" d="M495 202 H477"/><path class="arrow" d="M255 202 H237"/>
+          <path class="arrow arrow-target" d="M127 246 V305"/><path class="arrow arrow-target" d="M237 350 H255"/>
+          <g transform="translate(15 20)"><rect class="node" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">1080p video</text><text class="node-sub" x="14" y="51">Source-bound input</text><text class="node-sub" x="14" y="71">Visual evidence shown</text></g>
+          <g transform="translate(255 20)"><rect class="node" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">Court geometry</text><text class="node-sub" x="14" y="51">Lines and court region</text><text class="node-sub" x="14" y="71">Checkpoint evidence</text></g>
+          <g transform="translate(495 20)"><rect class="node" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">CurrentCourt filter</text><text class="node-sub" x="14" y="51">Candidate-level ownership</text><text class="node-sub" x="14" y="71">Partial research evidence</text></g>
+          <g transform="translate(735 20)"><rect class="node" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">Player detection + Pose</text><text class="node-sub" x="14" y="51">Anonymous boxes, keypoints</text><text class="node-sub" x="14" y="71">Offline frame examples</text></g>
+          <g transform="translate(735 158)"><rect class="node" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">TrackNet V3 candidates</text><text class="node-sub" x="14" y="51">Raw shuttle detections</text><text class="node-sub" x="14" y="71">Not verified trajectories</text></g>
+          <g transform="translate(495 158)"><rect class="node node-offline" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">Temporal feature fusion</text><text class="node-sub" x="14" y="51">Masked evidence + context</text><text class="node-sub" x="14" y="71">Offline study</text></g>
+          <g transform="translate(255 158)"><rect class="node node-offline" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">LIVE / DEAD / UNKNOWN</text><text class="node-sub" x="14" y="51">Editorial-state estimation</text><text class="node-sub" x="14" y="71">Offline evaluation only</text></g>
+          <g transform="translate(15 158)"><rect class="node node-offline" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">START / END candidates</text><text class="node-sub" x="14" y="51">Boundary proposals</text><text class="node-sub" x="14" y="71">Not formal Rally edges</text></g>
+          <g transform="translate(15 306)"><rect class="node node-target" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">Rally interval pairing</text><text class="node-sub" x="14" y="51">Requires verified pairing</text><text class="node-sub" x="14" y="71">No accepted production Rally</text></g>
+          <g transform="translate(255 306)"><rect class="node node-target" width="222" height="88" rx="11"/><text class="node-title" x="14" y="30">KeepTimeline → export</text><text class="node-sub" x="14" y="51">Video-only edit output</text><text class="node-sub" x="14" y="71">Production validation pending</text></g>
+        </svg>
+      </div>
+      <div class="legend-row" aria-label="Architecture evidence status">
+        <span class="tag">Visual evidence shown</span><span class="tag tag--offline">Offline study</span><span class="tag tag--planned">Target stage · validation pending</span>
+      </div>
+      <p class="small-note">Green and amber stages refer to evidence across separate studies, not one linked production run. Arrows describe the target information flow.</p>
+    </section>
+
+    <section class="section" id="gallery" aria-labelledby="gallery-title">
+      <div class="section-heading">
+        <p class="eyebrow">03–05 · Visual evidence</p>
+        <h2 id="gallery-title">A closer look at the Court, players, and shuttle candidates</h2>
+        <p>Every figure comes from an existing research asset. Open an image for its original resolution; expand the caption for source binding and model details.</p>
+      </div>
+
+      <div class="figure-grid">
+        <figure class="evidence-card" id="court">
+          <a class="image-link" href="assets/evidence/court-260807-92-midpoint.jpg" data-zoom aria-label="Open full-resolution Court geometry image"><img src="assets/evidence/court-260807-92-midpoint.jpg" width="1920" height="1080" alt="Real badminton frame with the Court geometry overlay and source-bound midpoint checkpoint result" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>Court geometry on a real frame.</strong> The overlay shows the court lines used to define a spatial region. Court context can help reject detections from nearby play areas.<span class="caption-limit">This is a recorded checkpoint, not evidence that Court geometry is correct on every frame or every source.</span>
+            <details><summary>Technical details</summary><p>Study: 2026-08-07, source <code>260807-92</code>. Automatic Court evidence and source-bound visual registration passed at the recorded checkpoints. This source belongs to a different study from the October four-video cohort.</p></details>
+          </figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/tracknet-currentcourt-count-map-260807-92.png" data-zoom aria-label="Open full-resolution CurrentCourt candidate count map"><img src="assets/evidence/tracknet-currentcourt-count-map-260807-92.png" width="2535" height="1033" alt="Image-space count map of TrackNet candidate detections admitted within the Court-scoped region across source phases" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>CurrentCourt-scoped candidate map.</strong> Candidate counts show where detections accumulate across source phases; the court boundary gives a spatial reference.<span class="caption-limit">This is an image-pixel count map, not a Court-plane projection, physical speed estimate, or proof of ownership for every candidate.</span>
+            <details><summary>Technical details</summary><p>Separate Court-scoped study, 2026-08-07, source <code>260807-92</code>. Counts are aggregated by phase and image-space bin.</p></details>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="section-heading" id="pose" style="margin-top:2.5rem">
+        <p class="eyebrow">04 · Player detection and Pose</p>
+        <h3>From person boxes to a sparse motion description</h3>
+        <p>Pose keypoints can describe body configuration and movement over time. Anonymous Near/Far slots give the research renderer a compact way to show two detections; they are experimental image-y slots, not persistent identities or certified Court-side roles.</p>
       </div>
       <div class="figure-grid">
         <figure class="evidence-card">
-          <a class="image-link" href="assets/evidence/m6-source-start-26100302-000-000s.png"><img src="assets/evidence/m6-source-start-26100302-000-000s.png" alt="Exact source-start frame for 26100302 with frozen Pose, TrackNet, and activity overlays" loading="lazy" decoding="async"></a>
-          <figcaption><strong>Opening frame · Source 26100302 · 0.000 s · PTS 0 / frame 0.</strong> M6 frozen zero-shot visualization, editorial GT DEAD and M6 UNKNOWN. This is a source-position frame, not a START event; Near/Far pose slots are unresolved.</figcaption>
+          <a class="image-link" href="assets/evidence/m6-live-match-26100302-017-084s.png" data-zoom aria-label="Open full-resolution Pose and skeleton example"><img src="assets/evidence/m6-live-match-26100302-017-084s.png" width="1920" height="1080" alt="Badminton frame with two experimental Near and Far person boxes, keypoint skeletons, and separate activity timelines" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>Pose and keypoints in context.</strong> Person boxes and skeleton joints expose useful spatial and motion cues for later temporal analysis.<span class="caption-limit">The Near/Far slots are not permanent player tracking. This frozen example does not establish an action class or production LIVE prediction.</span>
+            <details><summary>Technical details</summary><p>Frozen M6 visualization, source <code>26100302</code> at 17.084 s; PTS 2,050,048, frame 2,048. Experimental image-y slots; no target-GT parameter tuning.</p></details>
+          </figcaption>
         </figure>
         <figure class="evidence-card">
-          <a class="image-link" href="assets/evidence/m6-source-midpoint-26100304-278-645s.png"><img src="assets/evidence/m6-source-midpoint-26100304-278-645s.png" alt="Midpoint frame for 26100304 with Near and Far Pose boxes and skeletons" loading="lazy" decoding="async"></a>
-          <figcaption><strong>Mid-source frame · Source 26100304 · 278.645 s · PTS 33,437,404 / frame 33,404.</strong> M6 frozen zero-shot visualization with both Pose slots visible; editorial GT LIVE and M6 UNKNOWN. The shuttle output is unresolved without a raw candidate.</figcaption>
+          <a class="image-link" href="assets/evidence/m6-source-midpoint-26100304-278-645s.png" data-zoom aria-label="Open full-resolution midpoint frame with both Pose slots"><img src="assets/evidence/m6-source-midpoint-26100304-278-645s.png" width="1920" height="1080" alt="Midpoint frame with two experimental person detection boxes and Pose skeletons on a badminton court" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>Two detections at a different source position.</strong> The frame shows the kind of player layout that can inform activity context.<span class="caption-limit">A single frame cannot verify identity continuity or reliable court-side ownership; the shuttle output is unresolved here.</span>
+            <details><summary>Technical details</summary><p>Frozen M6 visualization, source <code>26100304</code> at 278.645 s; PTS 33,437,404, frame 33,404. This is not the same source as the Court checkpoint above.</p></details>
+          </figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-source-start-26100302-000-000s.png" data-zoom aria-label="Open full-resolution source-start frame"><img src="assets/evidence/m6-source-start-26100302-000-000s.png" width="1920" height="1080" alt="Opening source frame with Pose, TrackNet, and M6 state overlays marked as separate offline evidence" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>An opening frame is not a START event.</strong> It shows how the frozen renderer handles an early frame with sparse observations.<span class="caption-limit">The model output is UNKNOWN and the slots are unresolved; source position alone does not create a Rally boundary.</span>
+            <details><summary>Technical details</summary><p>Source <code>26100302</code> at 0.000 s; PTS 0, frame 0. Frozen zero-shot M6 visualization; editorial GT DEAD and M6 UNKNOWN.</p></details>
+          </figcaption>
         </figure>
       </div>
-    </section>
 
-    <section class="section" id="court" aria-labelledby="court-title">
-      <div class="section-heading">
-        <p class="eyebrow">EVIDENCE TYPE A · VIDEO AND COURT</p>
-        <h2 id="court-title">Court geometry on a real source frame</h2>
-        <p>This Aug 7 checkpoint is shown separately from the Oct 3 four-source M6 study.</p>
+      <div class="section-heading" id="shuttle" style="margin-top:2.7rem">
+        <p class="eyebrow">05 · Shuttlecock candidates</p>
+        <h3>TrackNet proposes points; association is a separate problem</h3>
+        <p>The four-source scatter contains 52,861 raw detection candidates. It is a spatial summary of candidates within existing editorial LIVE intervals—not a single flight path.</p>
       </div>
       <figure class="evidence-card evidence-card--wide">
-        <a class="image-link" href="assets/evidence/court-260807-92-midpoint.jpg"><img src="assets/evidence/court-260807-92-midpoint.jpg" alt="Court geometry overlay at the 260807-92 midpoint with PASS source-bound visual registration" loading="lazy" decoding="async"></a>
-        <figcaption><strong>Court checkpoint · Source 260807-92 · 302.619 s · PTS 36,314,278 / frame 36,278.</strong> <code>automatic_court_evidence_v1</code>, midpoint geometry PASS and source-bound registration PASS. This checkpoint does not certify all-frame stability, Rally, KeepTimeline, or export.</figcaption>
-      </figure>
-      <figure class="evidence-card evidence-card--wide">
-        <a class="image-link" href="assets/evidence/tracknet-currentcourt-count-map-260807-92.png"><img src="assets/evidence/tracknet-currentcourt-count-map-260807-92.png" alt="CurrentCourt-admitted TrackNet candidate counts in image-space bins across source phases for 260807-92" loading="lazy" decoding="async"></a>
-        <figcaption><strong>Separate Court-scoped spatial study · Source 260807-92 · 2026-08-07.</strong> CurrentCourt-admitted TrackNet point counts by phase in 1920×1080 image pixels. This is an aggregate bin map, not the raw scatter, a Court-plane projection, or a physical-speed estimate.</figcaption>
-      </figure>
-    </section>
-
-    <section class="section" id="pose" aria-labelledby="pose-title">
-      <div class="section-heading">
-        <p class="eyebrow">EVIDENCE TYPE B · PLAYER AND POSE</p>
-        <h2 id="pose-title">Player and Pose: boxes, skeletons, and experimental Near/Far slots</h2>
-        <p>Near/Far describe image-y pose slots in this research renderer. They are not persistent player identities or Court-side roles.</p>
-      </div>
-      <figure class="evidence-card evidence-card--wide">
-        <a class="image-link" href="assets/evidence/m6-live-match-26100302-017-084s.png"><img src="assets/evidence/m6-live-match-26100302-017-084s.png" alt="Near and Far Pose boxes and skeletons at a frozen M6 LIVE match on source 26100302" loading="lazy" decoding="async"></a>
-        <figcaption><strong>Pose success example · Source 26100302 · 17.084 s · PTS 2,050,048 / frame 2,048.</strong> <code>M6_POSE_MOTION_PLUS_TRACKNET</code>, frozen zero-shot parameters with no target-GT tuning; editorial GT LIVE / M6 MATCH. Both pose slots and TrackNet candidate summary are visible.</figcaption>
-      </figure>
-    </section>
-
-    <section class="section" id="shuttle" aria-labelledby="shuttle-title">
-      <div class="section-heading">
-        <p class="eyebrow">EVIDENCE TYPE C · TRACKNET CANDIDATES</p>
-        <h2 id="shuttle-title">Raw points, frame overlays, and a separate aggregate map</h2>
-        <p>The four-source plot below is the original high-resolution raw-candidate figure. Its points are unassociated and are not a shuttle trajectory.</p>
-      </div>
-      <figure class="evidence-card evidence-card--wide">
-        <a class="image-link" href="assets/evidence/tracknet-raw-scatter-four-source.png"><img src="assets/evidence/tracknet-raw-scatter-four-source.png" alt="Original four-panel scatter of 52,861 TrackNet raw candidates inside existing editorial LIVE intervals" loading="lazy" decoding="async"></a>
-        <figcaption><strong>TrackNet V3 raw candidates · Sources 26100301, 26100302, 26100303, 26100304 · 52,861 points.</strong> Counts are 10,635 / 15,382 / 12,222 / 14,622. The original 2700×1620 image uses image-pixel axes and confidence colors. No association, interpolation, or trajectory lines.</figcaption>
+        <a class="image-link" href="assets/evidence/tracknet-raw-scatter-four-source.png" data-zoom aria-label="Open original high-resolution TrackNet candidate scatter"><img src="assets/evidence/tracknet-raw-scatter-four-source.png" width="2700" height="1620" alt="Four-panel image-space scatter plot of 52,861 unassociated TrackNet V3 raw candidate points from four badminton video sources" loading="lazy" decoding="async"></a>
+        <span class="image-cta">Select to view original image</span>
+        <figcaption><strong>52,861 TrackNet V3 raw candidates across four sources.</strong> The figure preserves the original image-space axes and candidate confidence colors.<span class="caption-limit">These are raw candidates only. They have not been joined into a track, interpolated, or verified as a shuttle trajectory.</span>
+          <details><summary>Technical details</summary><p>Four sources recorded on 2026-10-03: <code>26100301</code> (10,635), <code>26100302</code> (15,382), <code>26100303</code> (12,222), and <code>26100304</code> (14,622). Source rows and provenance are in the <a href="evidence-manifest.json">evidence manifest</a>.</p></details>
+        </figcaption>
       </figure>
       <div class="figure-grid">
-        <figure class="evidence-card" id="false-live-overlay">
-          <a class="image-link" href="assets/evidence/m6-false-live-26100303-006-740s.png"><img src="assets/evidence/m6-false-live-26100303-006-740s.png" alt="TrackNet raw candidate point overlaid on a real frame from source 26100303 during a false LIVE prediction" loading="lazy" decoding="async"></a>
-          <figcaption><strong>Candidate overlay and failure · Source 26100303 · 6.740 s · PTS 808,808 / frame 808.</strong> The raw TrackNet candidate is drawn over the real frame. Editorial GT DEAD / M6 FALSE LIVE. Zero-shot frozen parameters; the candidate is not a verified flight path.</figcaption>
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/tracknet-aggregated-heatmap-four-source.png" data-zoom aria-label="Open full-resolution aggregated TrackNet heatmap"><img src="assets/evidence/tracknet-aggregated-heatmap-four-source.png" width="2250" height="900" alt="Aggregated TrackNet candidate counts grouped into spatial cells for LIVE and DEAD editorial intervals" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>Aggregated candidate heatmap.</strong> Spatial binning highlights where raw candidates cluster in the report cohort.<span class="caption-limit">Binning removes individual point timing and association; this is distinct from a temporally linked track.</span>
+            <details><summary>Technical details</summary><p>Original figure from the 2026-10-03 four-source offline report. It aggregates raw candidate locations by editorial state.</p></details>
+          </figcaption>
         </figure>
         <figure class="evidence-card">
-          <a class="image-link" href="assets/evidence/tracknet-aggregated-heatmap-four-source.png"><img src="assets/evidence/tracknet-aggregated-heatmap-four-source.png" alt="Report figure aggregating TrackNet candidate counts into LIVE and DEAD spatial cells" loading="lazy" decoding="async"></a>
-          <figcaption><strong>Aggregated heatmap · Oct 3 four-source report.</strong> Candidate counts are binned into cells. This is a separate aggregate from the raw point scatter above; it does not preserve individual point timestamps or association.</figcaption>
+          <a class="image-link" href="assets/evidence/m6-false-live-26100303-006-740s.png" data-zoom aria-label="Open full-resolution false LIVE TrackNet overlay"><img src="assets/evidence/m6-false-live-26100303-006-740s.png" width="1920" height="1080" alt="Real badminton frame with a raw TrackNet candidate overlay during an M6 false LIVE prediction" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>A candidate can coexist with a false LIVE prediction.</strong> The example shows editorial GT DEAD while the frozen M6 output is FALSE LIVE.<span class="caption-limit">One overlay does not establish the exact failure cause or a verified shuttle position.</span>
+            <details><summary>Technical details</summary><p>Source <code>26100303</code> at 6.740 s; PTS 808,808, frame 808. M6 zero-shot output. The TrackNet point is an unassociated raw candidate.</p></details>
+          </figcaption>
         </figure>
       </div>
-      <figure class="evidence-card evidence-card--wide">
-        <a class="image-link" href="assets/evidence/m6-26100302-kwyoke-candidate-012-279s.png"><img src="assets/evidence/m6-26100302-kwyoke-candidate-012-279s.png" alt="First Kwyoke event candidate K0001 with a raw TrackNet point, Near and Far Pose slots, and state timeline" loading="lazy" decoding="async"></a>
-        <figcaption><strong>First Kwyoke candidate for source 26100302 · 12.278933 s · PTS 1,473,472 / frame 1,472.</strong> <code>26100302-K0001</code> is a task-forward HIT_CANDIDATE with <code>physical_hit_verified=false</code>. GT and M6 state are DEAD/MATCH; the frame reports an uncalibrated Hit score and no legal window output.</figcaption>
-      </figure>
     </section>
 
     <section class="section" id="timeline" aria-labelledby="timeline-title">
       <div class="section-heading">
-        <p class="eyebrow">EVIDENCE TYPE D · STATES AND BOUNDARIES</p>
-        <h2 id="timeline-title">Timeline: LIVE, DEAD, UNKNOWN, and START/END evidence</h2>
-        <p>These report figures use different offline model arms. Their captions preserve that distinction.</p>
+        <p class="eyebrow">06 · Temporal activity recognition</p>
+        <h2 id="timeline-title">Activity is a sequence, with uncertainty kept visible</h2>
+        <p>Temporal models compare context across time. The figures below show distinct offline outputs; they must not be read as one combined model run.</p>
+      </div>
+      <ul class="state-legend" aria-label="State color legend">
+        <li><span class="swatch swatch--live" aria-hidden="true"></span>LIVE</li>
+        <li><span class="swatch swatch--dead" aria-hidden="true"></span>DEAD</li>
+        <li><span class="swatch swatch--unknown" aria-hidden="true"></span>UNKNOWN</li>
+      </ul>
+      <div class="timeline-grid">
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-gt-state-timeline-four-source.png" data-zoom aria-label="Open full-source GT and M6 state timeline"><img src="assets/evidence/m6-gt-state-timeline-four-source.png" width="2100" height="1200" alt="Full-source timeline with separate editorial GT and frozen M6 LIVE, DEAD, and UNKNOWN state rows for four videos" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>Editorial GT beside categorical M6 states.</strong> The rows make agreement and UNKNOWN regions visible across each complete source.<span class="caption-limit">This M6 visual study is not the Tail-safe model arm used for the headline metrics.</span>
+            <details><summary>Technical details</summary><p>Four-source cohort recorded on 2026-10-03. Plot colors: LIVE green, DEAD slate, UNKNOWN amber. GT is an editorial keep timeline, not physical shuttle or Hit truth.</p></details>
+          </figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/tail-safe-probability-timeline-four-source.png" data-zoom aria-label="Open full-source Tail-safe probability timeline"><img src="assets/evidence/tail-safe-probability-timeline-four-source.png" width="2080" height="1170" alt="Four-source P(LIVE) probability curves from the separate Tail-safe offline model arm with quarantined tail regions marked" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>Tail-safe P(LIVE) curves.</strong> Probability is shown over each full source, with quarantined tail regions marked in the original figure.<span class="caption-limit">This is a different offline arm from the M6 categorical state timeline beside it; the two figures are not spliced together.</span>
+            <details><summary>Technical details</summary><p>Model arm: <code>PLAYER_TRACKNET_CONTEXT_TAIL_SAFE</code>; four videos from one recording date. The values are editorial-state estimates and do not establish cross-date generalization.</p></details>
+          </figcaption>
+        </figure>
+      </div>
+      <p class="timeline-note">The color key is consistent throughout the site: <strong style="color:var(--live)">LIVE</strong>, <strong style="color:var(--dead)">DEAD</strong>, and <strong style="color:var(--unknown)">UNKNOWN</strong>. Missing observations stay missing; UNKNOWN is not silently converted to another state.</p>
+    </section>
+
+    <section class="section" id="boundaries" aria-labelledby="boundary-title">
+      <div class="section-heading">
+        <p class="eyebrow">07 · START / END evidence</p>
+        <h2 id="boundary-title">A boundary candidate is a proposal, not a completed Rally</h2>
+        <p>Boundary profiles describe feature changes near editorial edges. Frozen START and END screenshots show individual candidates; they do not prove correct pairing or formal interval acceptance.</p>
       </div>
       <figure class="evidence-card evidence-card--wide">
-        <a class="image-link" href="assets/evidence/m6-gt-state-timeline-four-source.png"><img src="assets/evidence/m6-gt-state-timeline-four-source.png" alt="Four-source full timeline with editorial GT and frozen M6 A LIVE, DEAD, and UNKNOWN rows" loading="lazy" decoding="async"></a>
-        <figcaption><strong>Full-source categorical state comparison · Oct 3 sources 26100301–26100304 · frozen M6 A.</strong> Each source shows editorial GT and model-state rows separately. Legend from the original plot generator: LIVE green, DEAD slate, UNKNOWN amber. This is an M6 research output.</figcaption>
-      </figure>
-      <figure class="evidence-card evidence-card--wide">
-        <a class="image-link" href="assets/evidence/tail-safe-probability-timeline-four-source.png"><img src="assets/evidence/tail-safe-probability-timeline-four-source.png" alt="Four full-source P(LIVE) probability curves for the tail-safe offline arm with quarantined tails" loading="lazy" decoding="async"></a>
-        <figcaption><strong>Held-out P(LIVE) curves · `PLAYER_TRACKNET_CONTEXT_TAIL_SAFE` · four sources, one date.</strong> Dotted markers identify quarantined tails in the original report. This is not the M6 A categorical timeline above.</figcaption>
-      </figure>
-      <figure class="evidence-card evidence-card--wide">
-        <a class="image-link" href="assets/evidence/boundary-feature-profiles-four-source.png"><img src="assets/evidence/boundary-feature-profiles-four-source.png" alt="Pose and TrackNet feature profiles before and after editorial START and END boundaries" loading="lazy" decoding="async"></a>
-        <figcaption><strong>Boundary feature profiles · Oct 3 four-source offline study.</strong> START/END traces are aligned to editorial boundary time zero. These descriptive feature curves are not predicted boundary events.</figcaption>
+        <a class="image-link" href="assets/evidence/boundary-feature-profiles-four-source.png" data-zoom aria-label="Open boundary feature profile plot"><img src="assets/evidence/boundary-feature-profiles-four-source.png" width="2100" height="1050" alt="Pose and TrackNet feature profiles aligned around editorial START and END boundary times" loading="lazy" decoding="async"></a>
+        <span class="image-cta">Select to view original image</span>
+        <figcaption><strong>Feature profiles around editorial boundaries.</strong> The curves show measured feature behavior before and after aligned boundary time zero.<span class="caption-limit">These are descriptive profiles, not predicted event times or proof that feature changes cause a boundary.</span>
+          <details><summary>Technical details</summary><p>Original figure from the 2026-10-03 four-source offline study. START and END are evaluated separately; editorial alignment is not physical event truth.</p></details>
+        </figcaption>
       </figure>
       <div class="figure-grid">
         <figure class="evidence-card">
-          <a class="image-link" href="assets/evidence/m6-26100302-start-candidate-009-510s.png"><img src="assets/evidence/m6-26100302-start-candidate-009-510s.png" alt="Nearest mapped frame for a frozen M6 START candidate at 9.5 seconds on source 26100302" loading="lazy" decoding="async"></a>
-          <figcaption><strong>START_CANDIDATE · event 9.500 s; sampled frame 9.5095 s · PTS 1,141,140 / frame 1,140.</strong> Source 26100302, editorial GT DEAD and sampled M6 FALSE LIVE. Candidate only; it was not promoted to a formal boundary.</figcaption>
+          <a class="image-link" href="assets/evidence/m6-26100302-start-candidate-009-510s.png" data-zoom aria-label="Open START candidate screenshot"><img src="assets/evidence/m6-26100302-start-candidate-009-510s.png" width="1920" height="1080" alt="Frozen M6 START candidate frame with its nearby editorial state timeline" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>START candidate.</strong> A frozen candidate is shown alongside its nearby frame and temporal context.<span class="caption-limit">Candidate only; it was not promoted to a formal Rally boundary.</span>
+            <details><summary>Technical details</summary><p>Source <code>26100302</code>; candidate event time 9.500 s, nearest sampled frame 9.5095 s; PTS 1,141,140, frame 1,140. Editorial GT DEAD; sampled M6 state FALSE LIVE.</p></details>
+          </figcaption>
         </figure>
         <figure class="evidence-card">
-          <a class="image-link" href="assets/evidence/m6-26100302-end-candidate-011-011s.png"><img src="assets/evidence/m6-26100302-end-candidate-011-011s.png" alt="Nearest mapped frame for a frozen M6 END candidate at 11 seconds on source 26100302" loading="lazy" decoding="async"></a>
-          <figcaption><strong>END_CANDIDATE · event 11.000 s; sampled frame 11.011 s · PTS 1,321,320 / frame 1,320.</strong> Source 26100302; the sampled frame is editorial GT DEAD and M6 DEAD. Candidate only; no formal Rally boundary is asserted.</figcaption>
+          <a class="image-link" href="assets/evidence/m6-26100302-end-candidate-011-011s.png" data-zoom aria-label="Open END candidate screenshot"><img src="assets/evidence/m6-26100302-end-candidate-011-011s.png" width="1920" height="1080" alt="Frozen M6 END candidate frame with its nearby editorial state timeline" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>END candidate.</strong> A separate example shows the frame closest to a proposed end event.<span class="caption-limit">A candidate does not confirm a physical end or a matched interval.</span>
+            <details><summary>Technical details</summary><p>Source <code>26100302</code>; candidate event time 11.000 s, nearest sampled frame 11.011 s; PTS 1,321,320, frame 1,320. No formal Rally boundary is asserted.</p></details>
+          </figcaption>
         </figure>
       </div>
     </section>
 
     <section class="section" id="experiments" aria-labelledby="experiments-title">
       <div class="section-heading">
-        <p class="eyebrow">EVIDENCE TYPE E · EXPERIMENTS</p>
-        <h2 id="experiments-title">Model performance and measured ablations</h2>
-        <p>Both images come from actual report figures; their metrics and cohorts are not interchangeable.</p>
+        <p class="eyebrow">08 · Experimental results</p>
+        <h2 id="experiments-title">Compare two model arms without combining their best scores</h2>
+        <p>Both arms use the same four-source, one-date editorial evaluation. State classification and complete interval matching are different tasks with different metrics.</p>
       </div>
-      <figure class="evidence-card evidence-card--wide">
-        <a class="image-link" href="assets/evidence/model-performance-comparison-four-source.png"><img src="assets/evidence/model-performance-comparison-four-source.png" alt="Offline model comparison with balanced accuracy, unknown fraction, LIVE precision and recall, and pooled START/END F1" loading="lazy" decoding="async"></a>
-        <figcaption><strong>Offline performance comparison · four sources, one date · ±0.5 s pooled START/END F1.</strong> The original chart compares state metrics and boundary metrics for distinct research arms; see the report for exact tail-safe and unguarded values.</figcaption>
-      </figure>
-      <figure class="evidence-card evidence-card--wide">
-        <a class="image-link" href="assets/evidence/ablation-delta-complete-rally-four-source.png"><img src="assets/evidence/ablation-delta-complete-rally-four-source.png" alt="Measured same-protocol archived ablations showing change in complete Rally boundary-pair counts across four sources" loading="lazy" decoding="async"></a>
-        <figcaption><strong>Archived same-protocol ablation · four sources, one date · change in complete Rally boundary pairs.</strong> Source is the frozen table noted in the figure index. This count-delta experiment is separate from the tail-safe report's 79/148 metrics.</figcaption>
-      </figure>
+      <div class="control-block" aria-label="Interactive offline model comparison">
+        <p class="control-label">Model arm</p>
+        <div class="button-group" role="group" aria-label="Choose an offline model arm">
+          <button class="choice-button" type="button" data-arm-button="tail-safe" aria-pressed="true">Tail-safe context</button>
+          <button class="choice-button" type="button" data-arm-button="unguarded" aria-pressed="false">Unguarded context</button>
+        </div>
+        <p class="control-label">Metric view</p>
+        <div class="button-group" role="group" aria-label="Choose a metric group">
+          <button class="choice-button" type="button" data-metric-view="state" aria-pressed="true">State metrics</button>
+          <button class="choice-button" type="button" data-metric-view="boundaries" aria-pressed="false">Boundary pairing</button>
+          <button class="choice-button" type="button" data-metric-view="retention" aria-pressed="false">Editorial retention</button>
+        </div>
+      </div>
+      <div class="study-readout" aria-live="polite" aria-atomic="true">
+        <h3 data-study-name>Tail-safe Player + TrackNet context</h3>
+        <p class="study-status" data-study-status>Offline development study · four videos · 2026-10-03</p>
+        <dl class="metric-panel metric-grid" data-metric-panel="state">
+          <div class="metric-item"><dt>Balanced accuracy</dt><dd data-study-value="balanced_accuracy">87.75%</dd></div>
+          <div class="metric-item"><dt>UNKNOWN ratio</dt><dd data-study-value="unknown_ratio">5.08%</dd></div>
+          <div class="metric-item"><dt>LIVE recall</dt><dd data-study-value="live_recall">84.33%</dd></div>
+          <div class="metric-item"><dt>DEAD recall</dt><dd data-study-value="dead_recall">91.18%</dd></div>
+        </dl>
+        <dl class="metric-panel metric-grid" data-metric-panel="boundaries" hidden>
+          <div class="metric-item"><dt>START candidates matched</dt><dd data-study-value="start_matches">139/148</dd></div>
+          <div class="metric-item"><dt>END candidates matched</dt><dd data-study-value="end_matches">93/148</dd></div>
+          <div class="metric-item"><dt>Complete intervals matched</dt><dd data-study-value="matched_intervals">79/148</dd></div>
+          <div class="metric-item"><dt>Pair precision / recall</dt><dd><span data-study-value="precision">59.85%</span> / <span data-study-value="recall">53.38%</span></dd></div>
+        </dl>
+        <dl class="metric-panel metric-grid" data-metric-panel="retention" hidden>
+          <div class="metric-item"><dt>Editorial LIVE time lost</dt><dd data-study-value="editorial_live_lost_seconds">164.33 s</dd></div>
+          <div class="metric-item"><dt>Editorial DEAD time kept</dt><dd data-study-value="editorial_dead_kept_seconds">62.85 s</dd></div>
+        </dl>
+        <noscript><p class="no-script">The comparison controls need JavaScript. The complete two-arm table and figures remain available below.</p></noscript>
+      </div>
+      <div class="comparison-table-wrap">
+        <table class="comparison-table">
+          <caption>Exact values from the same four-source offline study. Complete pairs require both boundaries to match within ±0.5 s.</caption>
+          <thead><tr><th scope="col">Offline arm</th><th scope="col">Balanced accuracy</th><th scope="col">UNKNOWN</th><th scope="col">START</th><th scope="col">END</th><th scope="col">Complete pairs</th><th scope="col">Precision</th><th scope="col">Recall</th><th scope="col">LIVE lost</th><th scope="col">DEAD kept</th></tr></thead>
+          <tbody>
+            <tr data-study-row="tail-safe" class="is-selected"><th scope="row">Tail-safe</th><td>87.75%</td><td>5.08%</td><td>139/148</td><td>93/148</td><td>79/148</td><td>59.85%</td><td>53.38%</td><td>164.33 s</td><td>62.85 s</td></tr>
+            <tr data-study-row="unguarded"><th scope="row">Unguarded context</th><td>87.44%</td><td>5.46%</td><td>138/148</td><td>100/148</td><td>82/148</td><td>61.65%</td><td>55.41%</td><td>175.60 s</td><td>51.12 s</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tradeoff-note"><strong>The trade-off is measurable:</strong> Tail-safe matched three fewer complete intervals, while losing 11.27 fewer seconds of editorial LIVE and keeping 11.73 more seconds of editorial DEAD. Its 87.75% balanced accuracy is a state-classification metric, not Rally detection accuracy.</p>
+      <div class="figure-grid" style="margin-top:1.2rem">
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/model-performance-comparison-four-source.png" data-zoom aria-label="Open model performance comparison plot"><img src="assets/evidence/model-performance-comparison-four-source.png" width="2380" height="840" alt="Report comparison of offline state metrics and separate pooled START and END boundary F1 results" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>State and boundary metrics side by side.</strong> The figure shows that strong state scores do not guarantee equally strong boundary pairing.<span class="caption-limit">It includes several model arms from the report; only the two same-protocol rows above are the Tail-safe comparison.</span>
+            <details><summary>Technical details</summary><p>Boundary bars use pooled START/END F1 at ±0.5 s. See the <a href="research-report.html">research results page</a> and original report for exact protocol and definitions.</p></details>
+          </figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/ablation-delta-complete-rally-four-source.png" data-zoom aria-label="Open archived ablation comparison"><img src="assets/evidence/ablation-delta-complete-rally-four-source.png" width="1260" height="560" alt="Archived same-protocol ablation plot showing changes in complete Rally boundary-pair counts" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>Archived ablation result.</strong> The original figure reports changes in complete boundary-pair counts across an archived comparison.<span class="caption-limit">This is a separate 2026-10-13 archived ablation, not a numeric extension of the Tail-safe table or proof of a production run.</span>
+            <details><summary>Technical details</summary><p>Four-source, one-date table-derived comparison. Its count-delta protocol is distinct from the interval recall, precision, and retention values above.</p></details>
+          </figcaption>
+        </figure>
+      </div>
     </section>
 
     <section class="section" id="failures" aria-labelledby="failures-title">
       <div class="section-heading">
-        <p class="eyebrow">FAILURE ANALYSIS</p>
-        <h2 id="failures-title">Failure Analysis: false LIVE, missing slots, and UNKNOWN at the source tail</h2>
-        <p>Failures are kept visible and labeled with their editorial GT and frozen prediction state.</p>
+        <p class="eyebrow">09 · Failure analysis</p>
+        <h2 id="failures-title">Show what remains difficult</h2>
+        <p>Failure evidence is part of the result. Each example separates the observed output from a possible explanation.</p>
       </div>
-      <div class="figure-grid">
+      <div class="failure-grid">
+        <article class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-false-live-26100303-006-740s.png" data-zoom aria-label="Open false LIVE example"><img src="assets/evidence/m6-false-live-26100303-006-740s.png" width="1920" height="1080" alt="Real badminton frame with a raw TrackNet candidate during editorial DEAD and M6 FALSE LIVE output" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <div class="failure-copy"><span class="failure-kind">Observed failure</span><h3>False LIVE</h3><p><strong>Observed:</strong> editorial GT is DEAD while the frozen M6 state is FALSE LIVE.</p><p><strong>Possible factor:</strong> a raw candidate by itself may not identify the relevant play. The exact causal contribution is not established by this frame.</p><p><strong>Research direction:</strong> evaluate candidate ownership and temporal support with uncertainty preserved.</p></div>
+        </article>
+        <article class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-unknown-far-missing-26100304-000-234s.png" data-zoom aria-label="Open missing Far slot UNKNOWN example"><img src="assets/evidence/m6-unknown-far-missing-26100304-000-234s.png" width="1920" height="1080" alt="Opening badminton frame with a Near pose slot, missing Far slot, and UNKNOWN M6 output" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <div class="failure-copy"><span class="failure-kind">Observed uncertainty</span><h3>Missing Far Pose</h3><p><strong>Observed:</strong> one Pose slot is absent and the M6 state is UNKNOWN.</p><p><strong>Interpretation:</strong> the missing observation remains visible; the page does not fill a pose or force a state.</p><p><strong>Open question:</strong> which other valid Court-scoped cues can support the temporal decision here?</p></div>
+        </article>
+        <article class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-26100304-last-sample-557-257s.png" data-zoom aria-label="Open final mapped frame with UNKNOWN output"><img src="assets/evidence/m6-26100304-last-sample-557-257s.png" width="1920" height="1080" alt="Last mapped frame with absent Near and Far pose slots and UNKNOWN output near the end of a video" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <div class="failure-copy"><span class="failure-kind">Observed uncertainty</span><h3>Unknown at the source tail</h3><p><strong>Observed:</strong> the last mapped sample is UNKNOWN with no valid Near/Far slot.</p><p><strong>Interpretation:</strong> EOF is a file boundary, not proof of an editorial END or physical Rally end.</p><p><strong>Research direction:</strong> learn a supported boundary from observed evidence and keep unsupported tails uncertain.</p></div>
+        </article>
+        <article class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-26100302-kwyoke-candidate-012-279s.png" data-zoom aria-label="Open Kwyoke event candidate example"><img src="assets/evidence/m6-26100302-kwyoke-candidate-012-279s.png" width="1920" height="1080" alt="Real frame with experimental Near and Far Pose, raw TrackNet candidate, Kwyoke event proposal, and separate state timeline" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <div class="failure-copy"><span class="failure-kind">Unverified event candidate</span><h3>Kwyoke is not verified Hit truth</h3><p><strong>Observed:</strong> an event proposal is displayed with a raw candidate and experimental Pose slots.</p><p><strong>Limitation:</strong> physical Hit and player attribution are not verified, and no legal model window was produced.</p><p><strong>Research direction:</strong> keep candidate, evidence, and verified event concepts distinct.</p></div>
+        </article>
+      </div>
+      <div class="figure-grid" style="margin-top:1rem">
         <figure class="evidence-card">
-          <a class="image-link" href="assets/evidence/m6-unknown-far-missing-26100304-000-234s.png"><img src="assets/evidence/m6-unknown-far-missing-26100304-000-234s.png" alt="Opening frame of source 26100304 with a Near detection, missing Far pose slot, and UNKNOWN M6 output" loading="lazy" decoding="async"></a>
-          <figcaption><strong>Missing Far slot · Source 26100304 · 0.234 s · PTS 28,028 / frame 28.</strong> Editorial GT DEAD / M6 UNKNOWN. The frame preserves the absent Far observation instead of inventing a pose.</figcaption>
+          <a class="image-link" href="assets/evidence/m6-26100302-start-candidate-009-510s.png" data-zoom aria-label="Open START boundary failure sample"><img src="assets/evidence/m6-26100302-start-candidate-009-510s.png" width="1920" height="1080" alt="START candidate sample with editorial DEAD and a nearby false LIVE state" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>Boundary location error.</strong> A START candidate appears near a sample labeled editorial DEAD / FALSE LIVE.<span class="caption-limit">This is a candidate inspection, not a complete paired interval.</span></figcaption>
         </figure>
         <figure class="evidence-card">
-          <a class="image-link" href="assets/evidence/m6-26100304-last-sample-557-257s.png"><img src="assets/evidence/m6-26100304-last-sample-557-257s.png" alt="Last mapped 26100304 frame at 557.257 seconds with UNKNOWN output and no valid Near or Far pose slots" loading="lazy" decoding="async"></a>
-          <figcaption><strong>Last mapped sample · Source 26100304 · 557.257 s · PTS 66,870,804 / frame 66,804.</strong> Editorial GT DEAD / M6 UNKNOWN with no valid Near/Far slot. This is the last mapped sample, about 25 ms before source duration, not an END prediction.</figcaption>
+          <a class="image-link" href="assets/evidence/m6-26100302-end-candidate-011-011s.png" data-zoom aria-label="Open END boundary candidate sample"><img src="assets/evidence/m6-26100302-end-candidate-011-011s.png" width="1920" height="1080" alt="END candidate sample with its local state context" loading="lazy" decoding="async"></a>
+          <span class="image-cta">Select to view original image</span>
+          <figcaption><strong>Pairing remains a separate step.</strong> Even a plausible END proposal must be paired and evaluated against a defined interval protocol.<span class="caption-limit">The screenshot does not establish a formal Rally end.</span></figcaption>
         </figure>
-      </div>
-      <p class="failure-link">The separate <a href="#false-live-overlay">26100303 raw-candidate frame</a> shows another failure: editorial GT DEAD with M6 FALSE LIVE.</p>
-      <div class="callout">
-        <strong>Located evidence gaps:</strong> no reliable Near/Far identity-role swap case and no current TrackNet V3 interpolation/prediction screenshot with selected coordinates. Historical PREDICTED/INTERPOLATED labels without current coordinates are not presented as V3 detections. There is also no verified physical Hit or player attribution in the displayed Kwyoke candidate.
       </div>
     </section>
 
-    <section class="section section--methods" id="methods" aria-labelledby="methods-title">
+    <section class="section" id="methods" aria-labelledby="methods-title">
       <div class="section-heading">
-        <p class="eyebrow">PROVENANCE</p>
-        <h2 id="methods-title">Methods and Provenance</h2>
+        <p class="eyebrow">10 · Methods and reproducibility</p>
+        <h2 id="methods-title">Read the evidence at the level you need</h2>
+        <p>The main gallery explains the findings. Separate pages retain metric definitions, provenance, cohort boundaries, and technical details.</p>
       </div>
-      <ul class="resource-list">
-        <li><a href="RESEARCH_REPORT.html">Original self-contained research report</a> <span>— report figures and full experiment context.</span></li>
-        <li><a href="METHODS.md">Methods and evaluation scope</a> <span>— exact metrics, model arms, GT meaning, and production boundary.</span></li>
-        <li><a href="REPRODUCIBILITY.md">Reproducibility and provenance</a> <span>— what was reused and what is withheld.</span></li>
-        <li><a href="evidence-manifest.json">Evidence manifest</a> <span>— per-image source, time/PTS, model/stage, experiment status, and limitations.</span></li>
-      </ul>
-      <p class="privacy-note">This gallery contains selected still images and original report figures. It does not host videos, raw caches, model weights, annotation files, personal identities, or local runtime services.</p>
+      <div class="resource-grid">
+        <a class="resource-card" href="methods.html"><strong>Methods and evaluation</strong><span>Protocol, labels, metrics, model arms, and study limitations.</span></a>
+        <a class="resource-card" href="reproducibility.html"><strong>Reproducibility and provenance</strong><span>How figures were selected and what is intentionally not published.</span></a>
+        <a class="resource-card" href="research-report.html"><strong>Research results</strong><span>Readable summary with a link to the complete source report.</span></a>
+        <a class="resource-card" href="RESEARCH_REPORT.html"><strong>Complete original report</strong><span>Full archived technical report in its original language.</span></a>
+        <a class="resource-card" href="evidence-manifest.json"><strong>Evidence manifest</strong><span>Per-figure source, time, model stage, claim, and limitation records.</span></a>
+        <a class="resource-card" href="https://github.com/YuCloer/BadmintonAutoCut-Demo"><strong>Source repository</strong><span>README, site assets, and public-resource checks.</span></a>
+      </div>
+      <p class="small-note">The public bundle contains selected still images and report figures. It does not publish source video, model weights, raw caches, or annotation files.</p>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>BadmintonAutoCut · source-attributed research evidence · <a href="https://github.com/YuCloer/BadmintonAutoCut-Demo">GitHub repository</a></p>
-    <p><a href="#overview">Back to top</a></p>
+    <p>BadmintonAutoCut · Computer vision research portfolio · EventFirst / <code>PRODUCTION_NOT_READY</code></p>
+    <div class="footer-links"><a href="https://github.com/YuCloer/BadmintonAutoCut-Demo">GitHub</a><a href="methods.html">Methods</a><a href="#overview">Back to top</a></div>
   </footer>
+  <dialog class="image-dialog" id="image-dialog" aria-label="Full-resolution research image">
+    <div class="dialog-bar"><button class="dialog-close" type="button" data-dialog-close aria-label="Close image">×</button></div>
+    <img alt="Expanded research image">
+  </dialog>
 </body>
 </html>

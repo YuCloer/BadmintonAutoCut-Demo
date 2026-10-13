@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Methods, labels, metrics, model arms, and limitations for BadmintonAutoCut's public offline research evidence.">
+  <title>Methods and Evaluation — BadmintonAutoCut</title>
+  <link rel="canonical" href="https://yucloer.github.io/BadmintonAutoCut-Demo/methods.html">
+  <link rel="alternate" hreflang="en" href="https://yucloer.github.io/BadmintonAutoCut-Demo/methods.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://yucloer.github.io/BadmintonAutoCut-Demo/zh/methods.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to methods</a>
+  <header class="site-header"><div class="topline">
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">BA</span><span>BadmintonAutoCut <span class="muted">/ Methods</span></span></a>
+    <nav class="language-switch" aria-label="Language"><a href="./" aria-label="English home">Home</a><a href="zh/methods.html" lang="zh-CN" hreflang="zh-CN">中文</a></nav>
+  </div></header>
+  <nav class="section-nav" aria-label="Site navigation"><div class="section-nav-inner"><a href="./">Overview</a><a href="./#gallery">Evidence gallery</a><a href="reproducibility.html">Reproducibility</a><a href="research-report.html">Results</a></div></nav>
+  <main class="site-main" id="main">
+    <article class="section method-prose">
+      <p class="eyebrow">Technical reference · Methods</p>
+      <h1>Methods and evaluation scope</h1>
+      <p>This page defines what the published figures measure, which studies they belong to, and what their scores do not establish. The full source report remains available in its original form.</p>
+
+      <h2>Study map</h2>
+      <ul>
+        <li><strong>October 3 visual cohort:</strong> four recorded sources used for the M6 frame gallery and the related four-source temporal comparison.</li>
+        <li><strong>October 12 offline fusion report:</strong> the <code>PLAYER_TRACKNET_CONTEXT_TAIL_SAFE</code> arm and its unguarded comparator, evaluated against same-date editorial timelines.</li>
+        <li><strong>August 7 Court checkpoint:</strong> a separate source-bound Court geometry and spatial-count study for source <code>260807-92</code>.</li>
+        <li><strong>October 13 archived ablation:</strong> a separate same-protocol table-derived count comparison. It is not a continuation of the Tail-safe metric table.</li>
+      </ul>
+      <p>These records do not describe one end-to-end production run. Their images may be viewed together as a research portfolio, but their metrics, dates, and claims remain separate.</p>
+
+      <h2>Reference labels and state evidence</h2>
+      <p>The four-source evaluation uses human-edited editorial intervals. They describe what the editor kept, not physical shuttle-in-play truth, a verified Hit event, or an independently measured rally boundary. Model classification is compared with that editorial reference.</p>
+      <p><code>UNKNOWN</code> remains an explicit model state. Missing observations are not filled with neighboring detections, and a missing pose or shuttle candidate does not by itself create LIVE or DEAD.</p>
+
+      <h2>Three TrackNet evidence levels</h2>
+      <ol>
+        <li><strong>Raw detection candidates:</strong> individual TrackNet V3 detections; the four-source scatter contains 52,861 unassociated points.</li>
+        <li><strong>Temporally associated track:</strong> candidate points connected under a time and motion association rule. The published scatter does not show this.</li>
+        <li><strong>Verified shuttle trajectory:</strong> a track independently checked as the shuttle. The published gallery does not claim one.</li>
+      </ol>
+      <p>The scatter and aggregate maps preserve candidate evidence only. They are not flight curves and do not certify CurrentCourt ownership for every point.</p>
+
+      <h2>Offline model comparison</h2>
+      <p>Both rows below come from four videos recorded on one date. The interval denominator is 148 editorial intervals. A complete match requires both predicted boundaries to fall within ±0.5 seconds of the reference interval.</p>
+      <div class="comparison-table-wrap">
+        <table class="comparison-table">
+          <caption>Reported values from the 2026-10-12 offline study.</caption>
+          <thead><tr><th scope="col">Offline arm</th><th scope="col">Balanced accuracy</th><th scope="col">UNKNOWN</th><th scope="col">START</th><th scope="col">END</th><th scope="col">Complete pairs</th><th scope="col">Precision</th><th scope="col">Recall</th><th scope="col">LIVE lost</th><th scope="col">DEAD kept</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>PLAYER_TRACKNET_CONTEXT_TAIL_SAFE</code></th><td>87.75%</td><td>5.08%</td><td>139/148</td><td>93/148</td><td>79/148</td><td>59.85%</td><td>53.38%</td><td>164.33 s</td><td>62.85 s</td></tr>
+            <tr><th scope="row"><code>PLAYER_TRACKNET_CONTEXT</code></th><td>87.44%</td><td>5.46%</td><td>138/148</td><td>100/148</td><td>82/148</td><td>61.65%</td><td>55.41%</td><td>175.60 s</td><td>51.12 s</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Metric definitions</h2>
+      <ul>
+        <li><strong>Balanced accuracy:</strong> average recall over the evaluated state classes; it is a classification metric, not Rally interval accuracy.</li>
+        <li><strong>UNKNOWN ratio:</strong> the fraction of evaluated time left explicitly uncertain.</li>
+        <li><strong>START / END matches:</strong> individually matched boundary candidates out of the 148 editorial boundaries, within ±0.5 seconds.</li>
+        <li><strong>Complete intervals matched:</strong> paired predicted start and end that both satisfy the tolerance, reported as a count over the 148 editorial intervals.</li>
+        <li><strong>Pair precision:</strong> matched predicted intervals divided by predicted intervals.</li>
+        <li><strong>Pair recall:</strong> matched editorial intervals divided by the 148 reference intervals.</li>
+        <li><strong>Editorial LIVE lost:</strong> seconds labeled LIVE by the editor but outside predicted kept intervals.</li>
+        <li><strong>Editorial DEAD kept:</strong> seconds labeled DEAD by the editor but inside predicted kept intervals.</li>
+      </ul>
+
+      <h2>Observed trade-off</h2>
+      <p>Tail-safe matched three fewer complete intervals than the unguarded context arm. It lost 11.27 fewer seconds of editorial LIVE and kept 11.73 more seconds of editorial DEAD. The comparison is useful as a retention trade-off on this cohort; it does not select a production model.</p>
+
+      <h2>Production boundary and limitations</h2>
+      <ul>
+        <li>All four temporal evaluation videos were recorded on 2026-10-03. The result does not establish generalization to another recording date.</li>
+        <li>Editorial GT is not physical LIVE/DEAD, shuttle-contact, or Hit truth.</li>
+        <li>The Court, M6, Tail-safe, and archived ablation figures come from separate studies or stages.</li>
+        <li>The displayed candidate frames do not prove full-source Court stability, CurrentCourt isolation, player identity, or verified shuttle trajectories.</li>
+        <li>EventFirst remains the implemented production path with status <code>PRODUCTION_NOT_READY</code>. The showcased studies report zero accepted production Rally intervals, zero accepted KeepTimeline outputs, and zero new exports.</li>
+      </ul>
+      <p><a href="METHODS.md">Open the maintained Markdown methods reference</a> · <a href="RESEARCH_REPORT.html">Open the complete original research report</a> · <a href="evidence-manifest.json">Open figure provenance</a></p>
+    </article>
+  </main>
+  <footer class="site-footer"><p>Methods · BadmintonAutoCut research portfolio</p><div class="footer-links"><a href="./">Home</a><a href="reproducibility.html">Reproducibility</a><a href="#main">Back to top</a></div></footer>
+</body>
+</html>

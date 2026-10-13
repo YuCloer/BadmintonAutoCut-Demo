@@ -49,11 +49,26 @@ class LinkParser(html.parser.HTMLParser):
     def __init__(self):
         super().__init__()
         self.links = []
+        self.elements = []
+        self.title = ""
+        self._in_title = False
 
     def handle_starttag(self, tag, attrs):
-        for key, value in attrs:
-            if key in {"href", "src"} and value:
+        attrs = dict(attrs)
+        self.elements.append((tag, attrs))
+        self._in_title = tag == "title"
+        for key in ("href", "src"):
+            value = attrs.get(key)
+            if value:
                 self.links.append((tag, key, value))
+
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self._in_title = False
+
+    def handle_data(self, data):
+        if self._in_title:
+            self.title += data
 
 
 def manifest() -> dict:
@@ -110,12 +125,114 @@ class PublicSiteTests(unittest.TestCase):
             self.assertTrue(item.get("prediction_identity"))
             self.assertTrue(item["limitations"])
 
-    def test_gallery_has_all_named_sections_and_manifest_figures(self):
+    def test_gallery_has_the_required_research_sections_and_manifest_figures(self):
         page = (SITE / "index.html").read_text(encoding="utf-8")
-        for heading in ("Overview", "Court", "Player and Pose", "Shuttle", "Timeline", "Experiments", "Failure Analysis", "Methods and Provenance"):
-            self.assertIn(heading, page)
+        for section in ("overview-study", "architecture", "court", "pose", "shuttle", "timeline", "boundaries", "experiments", "failures", "methods"):
+            self.assertRegex(page, rf'id=["\']{section}["\']')
         for item in manifest()["figures"]:
             self.assertIn(item["path"], page)
+
+    def test_english_and_chinese_site_routes_are_complete_localized_documents(self):
+        routes = {
+            "index.html": ("en", "zh/"),
+            "methods.html": ("en", "zh/methods.html"),
+            "reproducibility.html": ("en", "zh/reproducibility.html"),
+            "research-report.html": ("en", "zh/research-report.html"),
+            "zh/index.html": ("zh-CN", "../index.html"),
+            "zh/methods.html": ("zh-CN", "../methods.html"),
+            "zh/reproducibility.html": ("zh-CN", "../reproducibility.html"),
+            "zh/research-report.html": ("zh-CN", "../research-report.html"),
+        }
+        for relative, (language, counterpart) in routes.items():
+            page_path = SITE / relative
+            self.assertTrue(page_path.is_file(), relative)
+            parser = LinkParser()
+            parser.feed(page_path.read_text(encoding="utf-8"))
+            root = next(attrs for tag, attrs in parser.elements if tag == "html")
+            self.assertEqual(root.get("lang"), language, relative)
+            self.assertTrue(parser.title.strip(), relative)
+            self.assertTrue(any(
+                tag == "a" and attrs.get("href") == counterpart
+                for tag, attrs in parser.elements
+            ), f"missing language switch on {relative}")
+            self.assertTrue(any(
+                tag == "link" and attrs.get("rel") == "alternate"
+                and attrs.get("hreflang") in {"en", "zh-CN"}
+                for tag, attrs in parser.elements
+            ), f"missing language metadata on {relative}")
+
+    def test_both_homepages_show_every_manifest_image_from_the_same_local_assets(self):
+        expected = {
+            (SITE / item["path"]).resolve()
+            for item in manifest()["figures"]
+        }
+        for relative in ("index.html", "zh/index.html"):
+            page_path = SITE / relative
+            parser = LinkParser()
+            parser.feed(page_path.read_text(encoding="utf-8"))
+            actual = {
+                (page_path.parent / Path(value)).resolve()
+                for tag, key, value in parser.links
+                if tag == "img" and key == "src"
+            }
+            self.assertEqual(actual, expected, relative)
+
+    def test_research_metrics_keep_two_offline_arms_separate(self):
+        data = json.loads((SITE / "research-metrics.json").read_text(encoding="utf-8"))
+        self.assertEqual(data["source_scope"]["recording_date"], "2026-10-03")
+        self.assertEqual(data["source_scope"]["video_count"], 4)
+        self.assertEqual(data["source_scope"]["reference_type"], "human-edited editorial timelines")
+        self.assertFalse(data["source_scope"]["cross_date_generalization"])
+        self.assertFalse(data["source_scope"]["production_result"])
+        arms = {arm["id"]: arm for arm in data["arms"]}
+        self.assertEqual(set(arms), {"tail-safe", "unguarded"})
+        self.assertEqual(arms["tail-safe"]["balanced_accuracy"], 0.8775)
+        self.assertEqual(arms["tail-safe"]["unknown_ratio"], 0.0508)
+        self.assertEqual(arms["tail-safe"]["matched_intervals"], "79/148")
+        self.assertEqual(arms["tail-safe"]["precision"], 0.5985)
+        self.assertEqual(arms["tail-safe"]["recall"], 0.5338)
+        self.assertEqual(arms["tail-safe"]["editorial_live_lost_seconds"], 164.33)
+        self.assertEqual(arms["tail-safe"]["editorial_dead_kept_seconds"], 62.85)
+        self.assertEqual(arms["unguarded"]["balanced_accuracy"], 0.8744)
+        self.assertEqual(arms["unguarded"]["unknown_ratio"], 0.0546)
+        self.assertEqual(arms["unguarded"]["matched_intervals"], "82/148")
+        self.assertEqual(arms["unguarded"]["precision"], 0.6165)
+        self.assertEqual(arms["unguarded"]["recall"], 0.5541)
+        self.assertEqual(arms["unguarded"]["editorial_live_lost_seconds"], 175.60)
+        self.assertEqual(arms["unguarded"]["editorial_dead_kept_seconds"], 51.12)
+
+    def test_homepages_offer_real_model_metric_and_image_controls(self):
+        for relative in ("index.html", "zh/index.html"):
+            page_path = SITE / relative
+            parser = LinkParser()
+            parser.feed(page_path.read_text(encoding="utf-8"))
+            buttons = [attrs for tag, attrs in parser.elements if tag == "button"]
+            self.assertGreaterEqual(sum("data-arm-button" in item for item in buttons), 2, relative)
+            self.assertGreaterEqual(sum("data-metric-view" in item for item in buttons), 3, relative)
+            self.assertTrue(any(tag == "dialog" and attrs.get("id") == "image-dialog" for tag, attrs in parser.elements), relative)
+            scripts = [value for tag, key, value in parser.links if tag == "script" and key == "src"]
+            self.assertEqual(len(scripts), 1, relative)
+            self.assertTrue((page_path.parent / scripts[0]).resolve().is_file(), relative)
+
+    def test_readmes_have_language_switches_and_curated_gallery_links(self):
+        english_path = ROOT / "README.md"
+        chinese_path = ROOT / "README.zh-CN.md"
+        self.assertTrue(chinese_path.is_file())
+        for path, counterpart in ((english_path, "README.zh-CN.md"), (chinese_path, "README.md")):
+            text = path.read_text(encoding="utf-8")
+            self.assertIn(f"]({counterpart})", text, path.name)
+            self.assertGreaterEqual(len(re.findall(r"(?m)^!\[[^\]]*\]\(docs/site/assets/evidence/[^)]+\)", text)), 2)
+
+    def test_root_index_labels_the_aggregate_demo_as_historical(self):
+        page = (ROOT / "index.html").read_text(encoding="utf-8")
+        self.assertIn("https://yucloer.github.io/BadmintonAutoCut-Demo/", page)
+        self.assertRegex(page.lower(), r"historical|legacy|archive")
+
+    def test_pages_ci_validates_pull_requests_and_chinese_readme(self):
+        workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")
+        self.assertRegex(workflow, r"(?m)^\s*pull_request:")
+        self.assertIn("README.zh-CN.md", workflow)
+        self.assertRegex(workflow, r"(?s)deploy:.*?if:\s*.*refs/heads/main")
 
     def test_gallery_links_resolve_under_pages_base_path(self):
         parser = LinkParser()
@@ -145,20 +262,19 @@ class PublicSiteTests(unittest.TestCase):
         for marker in ("MATCH", "FALSE LIVE", "UNKNOWN", "START_CANDIDATE", "END_CANDIDATE", "HIT_CANDIDATE"):
             self.assertTrue(any(marker in str(status) for status in statuses), marker)
 
-    def test_readme_covers_five_distinct_evidence_types(self):
+    def test_readme_has_four_primary_research_figures(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         categories = {
-            "A": ("Court", "court-260807-92-midpoint.jpg"),
-            "B": ("Pose", "m6-live-match-26100302"),
-            "C": ("TrackNet", "tracknet-raw-scatter"),
-            "D": ("timeline", "m6-gt-state-timeline"),
-            "E": ("ablation", "ablation-delta-complete-rally"),
+            "Court": "court-260807-92-midpoint.jpg",
+            "Pose": "m6-live-match-26100302",
+            "TrackNet": "tracknet-raw-scatter",
+            "Timeline": "m6-gt-state-timeline",
         }
-        for letter, (word, image_name) in categories.items():
-            self.assertRegex(readme, rf"(?is)\b{letter}\b.{{0,1800}}{word}")
+        for word, image_name in categories.items():
+            self.assertIn(word, readme)
             self.assertIn(image_name, readme)
         direct_images = re.findall(r"!\[[^\]]*\]\(([^)]+)\)", readme)
-        self.assertGreaterEqual(len(set(direct_images)), 7)
+        self.assertEqual(len(set(direct_images)), 4)
         for path in direct_images:
             self.assertTrue(path.startswith("docs/site/assets/evidence/"), path)
             self.assertTrue((ROOT / path).is_file(), path)
@@ -197,6 +313,12 @@ class PublicSiteTests(unittest.TestCase):
         self.assertIn("REPRODUCIBILITY.md", report)
         self.assertNotIn("<video", report.lower())
         self.assertNotIn("<iframe", report.lower())
+        parser = LinkParser()
+        parser.feed(report)
+        root = next(attrs for tag, attrs in parser.elements if tag == "html")
+        self.assertEqual(root.get("lang"), "zh")
+        summary = (SITE / "research-report.html").read_text(encoding="utf-8")
+        self.assertIn('href="RESEARCH_REPORT.html"', summary)
 
     def test_pages_workflow_uploads_only_docs_site(self):
         workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")

@@ -7,7 +7,7 @@ import json
 import re
 import struct
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 
 
@@ -30,12 +30,21 @@ class LinkParser(html.parser.HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.links: list[str] = []
+        self.elements: list[tuple[str, dict[str, str | None]]] = []
+        self.ids: set[str] = set()
+        self.language: str | None = None
         self.forbidden_elements: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag in {"audio", "embed", "iframe", "object", "script", "video"}:
+        attributes = dict(attrs)
+        self.elements.append((tag, attributes))
+        if tag in {"audio", "embed", "iframe", "object", "video"}:
             self.forbidden_elements.append(tag)
-        for key, value in attrs:
+        if tag == "html":
+            self.language = attributes.get("lang")
+        if attributes.get("id"):
+            self.ids.add(attributes["id"])
+        for key, value in attributes.items():
             if key in {"href", "src"} and value:
                 self.links.append(value)
 
@@ -87,6 +96,35 @@ def resolve_local(site: Path, path_text: str) -> Path:
     return resolved
 
 
+def resolve_page_link(site: Path, page_relative: str, link: str) -> tuple[Path | None, str]:
+    parsed = urlsplit(link)
+    if parsed.scheme:
+        if parsed.scheme == "data":
+            require(bool(re.fullmatch(r"data:image/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+", link)), f"unsafe inline data URL: {link[:48]}")
+            return None, parsed.fragment
+        require(parsed.scheme == "https", f"non-HTTPS external link: {link}")
+        return None, parsed.fragment
+
+    if not parsed.path:
+        return SITE / page_relative, parsed.fragment
+    require(not parsed.path.startswith(("/", "\\")), f"root-relative link: {link}")
+    require("\\" not in parsed.path, f"backslash in URL path: {link}")
+    stack = list(PurePosixPath(page_relative).parent.parts)
+    for component in PurePosixPath(parsed.path).parts:
+        if component in {"", "."}:
+            continue
+        if component == "..":
+            require(bool(stack), f"link escapes site root: {link}")
+            stack.pop()
+        else:
+            stack.append(component)
+    normalized = "/".join(stack)
+    target = resolve_local(site, normalized)
+    if target.is_dir():
+        target = resolve_local(site, f"{normalized}/index.html" if normalized else "index.html")
+    return target, parsed.fragment
+
+
 def main() -> int:
     require(SITE.is_dir(), "docs/site is missing")
     allowlist_path = SITE / "public-allowlist.json"
@@ -135,22 +173,86 @@ def main() -> int:
         for marker in (b"d:\\program files\\pycharm", b"c:\\users\\", b"localhost", b"127.0.0.1"):
             require(marker not in raw, f"private path or local endpoint in image bytes: {rel}")
 
-    page_path = SITE / "index.html"
-    parser = LinkParser()
-    page = page_path.read_text(encoding="utf-8", errors="strict")
-    parser.feed(page)
-    require(not parser.forbidden_elements, f"dynamic/media embed is not allowed: {parser.forbidden_elements}")
-    for value in parser.links:
-        parsed = urlsplit(value)
-        if parsed.scheme:
-            require(parsed.scheme == "https", f"non-HTTPS external link: {value}")
-            continue
-        if value.startswith("#") or not parsed.path:
-            continue
-        target = resolve_local(SITE, parsed.path)
-        require(target.exists(), f"broken relative site link: {value}")
-    require("evidence-manifest.json" in page, "gallery must link its manifest")
-    require(all(item["path"] in page for item in figures), "gallery does not present every manifest image")
+    html_paths = sorted(rel for rel in listed if rel.lower().endswith(".html"))
+    require({"index.html", "zh/index.html", "methods.html", "zh/methods.html", "reproducibility.html", "zh/reproducibility.html", "research-report.html", "zh/research-report.html", "RESEARCH_REPORT.html"}.issubset(set(html_paths)), "bilingual pages or complete source report are missing")
+    parsed_pages: dict[str, tuple[str, LinkParser]] = {}
+    for rel in html_paths:
+        page_path = resolve_local(SITE, rel)
+        page_text = page_path.read_text(encoding="utf-8", errors="strict")
+        parser = LinkParser()
+        parser.feed(page_text)
+        is_original_chinese_report = rel == "RESEARCH_REPORT.html" and parser.language == "zh"
+        require(parser.language in {"en", "zh-CN"} or is_original_chinese_report, f"missing or unsupported HTML language in {rel}: {parser.language}")
+        require(not parser.forbidden_elements, f"media embed is not allowed in {rel}: {parser.forbidden_elements}")
+        parsed_pages[rel] = (page_text, parser)
+
+    for rel, (_page_text, parser) in parsed_pages.items():
+        for tag, attributes in parser.elements:
+            if tag == "script":
+                script_src = attributes.get("src")
+                require(bool(script_src), f"inline script is not permitted in {rel}")
+                target, _fragment = resolve_page_link(SITE, rel, script_src)
+                require(target is not None and target.is_file(), f"missing local script in {rel}: {script_src}")
+                require(target.relative_to(SITE).as_posix() in listed, f"script is outside the public allowlist in {rel}: {script_src}")
+            if tag == "img":
+                require(bool((attributes.get("alt") or "").strip()), f"image is missing alt text in {rel}: {attributes.get('src')}")
+
+        for value in parser.links:
+            target, fragment = resolve_page_link(SITE, rel, value)
+            if target is None:
+                continue
+            require(target.exists(), f"broken relative site link in {rel}: {value}")
+            if fragment and target.is_file() and target.suffix.lower() == ".html":
+                target_rel = target.relative_to(SITE).as_posix()
+                require(fragment in parsed_pages[target_rel][1].ids, f"broken anchor in {rel}: {value}")
+
+    for rel, language, counterpart in (
+        ("index.html", "en", "zh/index.html"),
+        ("zh/index.html", "zh-CN", "index.html"),
+        ("methods.html", "en", "zh/methods.html"),
+        ("zh/methods.html", "zh-CN", "methods.html"),
+        ("reproducibility.html", "en", "zh/reproducibility.html"),
+        ("zh/reproducibility.html", "zh-CN", "reproducibility.html"),
+        ("research-report.html", "en", "zh/research-report.html"),
+        ("zh/research-report.html", "zh-CN", "research-report.html"),
+    ):
+        page_text, parser = parsed_pages[rel]
+        require(parser.language == language, f"wrong page language in {rel}")
+        counterpart_path = resolve_local(SITE, counterpart)
+        switches_to_counterpart = False
+        for tag, attributes in parser.elements:
+            if tag != "a" or not attributes.get("href"):
+                continue
+            target, fragment = resolve_page_link(SITE, rel, attributes["href"])
+            if target == counterpart_path and not fragment:
+                switches_to_counterpart = True
+                break
+        require(switches_to_counterpart, f"missing language switch from {rel}")
+        require(any(tag == "link" and attributes.get("rel") == "alternate" and attributes.get("hreflang") in {"en", "zh-CN"} for tag, attributes in parser.elements), f"missing hreflang metadata in {rel}")
+
+    image_paths = {item["path"] for item in figures}
+    for rel in ("index.html", "zh/index.html"):
+        parser = parsed_pages[rel][1]
+        page_images = set()
+        for tag, attributes in parser.elements:
+            if tag == "img" and attributes.get("src"):
+                target, _fragment = resolve_page_link(SITE, rel, attributes["src"])
+                if target is not None and target.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+                    page_images.add(target.relative_to(SITE).as_posix())
+        require(page_images == image_paths, f"homepage image set differs from evidence manifest in {rel}")
+
+    require(any("evidence-manifest.json" in value for value in parsed_pages["index.html"][1].links), "gallery must link its manifest")
+
+    metrics_path = resolve_local(SITE, "research-metrics.json")
+    require("research-metrics.json" in listed and metrics_path.is_file(), "aggregate comparison data is missing or not allowlisted")
+    metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+    require(metrics.get("schema_version") == "badminton-offline-study-metrics-v1", "unknown research metrics schema")
+    require(metrics.get("source_scope") == {"recording_date": "2026-10-03", "video_count": 4, "reference_type": "human-edited editorial timelines", "cross_date_generalization": False, "production_result": False}, "research metrics scope is incomplete or overclaims")
+    arms = {arm.get("id"): arm for arm in metrics.get("arms", [])}
+    require(set(arms) == {"tail-safe", "unguarded"}, "exactly the two reported offline arms must be present")
+    require(arms["tail-safe"].get("matched_intervals") == "79/148" and arms["unguarded"].get("matched_intervals") == "82/148", "reported interval counts were mixed or changed")
+
+    require(all(item["path"] in parsed_pages["index.html"][0] for item in figures), "English gallery does not present every manifest image")
     print(f"Public site verified: {len(listed)} allowlisted files, {len(figures)} manifest images, all local links resolve.")
     return 0
 
