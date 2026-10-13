@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Source-attributed BadmintonAutoCut computer-vision research figures, model screenshots, timelines, and ablation results.">
+  <title>BadmintonAutoCut — Visual Research Evidence</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to evidence</a>
+  <header class="hero" id="overview">
+    <div class="hero__inner">
+      <p class="eyebrow">BADMINTONAUTOCUT · RESEARCH SHOWCASE</p>
+      <h1>Automatic Badminton Rally Detection &amp; Video Editing</h1>
+      <p class="hero__lead">Real source frames, Court and Pose overlays, TrackNet candidate maps, full-source state timelines, and measured offline comparisons.</p>
+      <div class="status-note" role="note">
+        <strong>Research evidence, not production certification.</strong>
+        The frame examples and M6 studies are historical offline visualizations. EventFirst remains the implemented production path with status <code>PRODUCTION_NOT_READY</code>.
+      </div>
+      <div class="hero__links">
+        <a class="button" href="https://github.com/YuCloer/BadmintonAutoCut-Demo">GitHub repository</a>
+        <a class="button button--quiet" href="RESEARCH_REPORT.html">Read the full report</a>
+        <a class="button button--quiet" href="METHODS.md">Methods and scope</a>
+      </div>
+    </div>
+  </header>
+
+  <nav class="section-nav" aria-label="Gallery sections">
+    <a href="#court">Court</a>
+    <a href="#pose">Player and Pose</a>
+    <a href="#shuttle">Shuttle</a>
+    <a href="#timeline">Timeline</a>
+    <a href="#experiments">Experiments</a>
+    <a href="#failures">Failure analysis</a>
+    <a href="#methods">Methods</a>
+  </nav>
+
+  <main id="main" class="page-shell">
+    <section class="section section--intro" aria-labelledby="scope-title">
+      <div>
+        <p class="eyebrow">WHAT YOU ARE SEEING</p>
+        <h2 id="scope-title">Overview: a visual record of separate research studies</h2>
+        <p>The Oct 3 cohort contains four sources: <code>26100301</code>–<code>26100304</code>. The Court checkpoint and Court-admitted spatial map belong to a separate Aug 7 source, <code>260807-92</code>. The Oct 13 ablation is another archived table-derived comparison.</p>
+        <p>Editorial GT is a human-edited timeline, not physical LIVE/DEAD or Hit truth. Click any image to open its original full-resolution file. Every figure has source, model/stage, experiment state, and limits recorded in the <a href="evidence-manifest.json">evidence manifest</a>.</p>
+      </div>
+      <aside class="scope-card">
+        <h3>Research pipeline</h3>
+        <ol class="pipeline">
+          <li>1080p source frame</li>
+          <li>Court and ownership evidence</li>
+          <li>Player boxes and Pose</li>
+          <li>TrackNet raw candidates</li>
+          <li>LIVE / DEAD / UNKNOWN study</li>
+          <li>START / END candidates</li>
+          <li>Rally → KeepTimeline → export</li>
+        </ol>
+        <p class="small-note">The public screenshots cover research stages. They do not mean every production gate above has passed.</p>
+      </aside>
+    </section>
+
+    <section class="section" id="source-positions" aria-labelledby="position-title">
+      <div class="section-heading">
+        <p class="eyebrow">SOURCE COVERAGE</p>
+        <h2 id="position-title">Start and middle frames from real videos</h2>
+        <p>These are distinct frozen model frames. The final mapped sample appears with the failure examples below.</p>
+      </div>
+      <div class="figure-grid">
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-source-start-26100302-000-000s.png"><img src="assets/evidence/m6-source-start-26100302-000-000s.png" alt="Exact source-start frame for 26100302 with frozen Pose, TrackNet, and activity overlays" loading="lazy" decoding="async"></a>
+          <figcaption><strong>Opening frame · Source 26100302 · 0.000 s · PTS 0 / frame 0.</strong> M6 frozen zero-shot visualization, editorial GT DEAD and M6 UNKNOWN. This is a source-position frame, not a START event; Near/Far pose slots are unresolved.</figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-source-midpoint-26100304-278-645s.png"><img src="assets/evidence/m6-source-midpoint-26100304-278-645s.png" alt="Midpoint frame for 26100304 with Near and Far Pose boxes and skeletons" loading="lazy" decoding="async"></a>
+          <figcaption><strong>Mid-source frame · Source 26100304 · 278.645 s · PTS 33,437,404 / frame 33,404.</strong> M6 frozen zero-shot visualization with both Pose slots visible; editorial GT LIVE and M6 UNKNOWN. The shuttle output is unresolved without a raw candidate.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="court" aria-labelledby="court-title">
+      <div class="section-heading">
+        <p class="eyebrow">EVIDENCE TYPE A · VIDEO AND COURT</p>
+        <h2 id="court-title">Court geometry on a real source frame</h2>
+        <p>This Aug 7 checkpoint is shown separately from the Oct 3 four-source M6 study.</p>
+      </div>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="assets/evidence/court-260807-92-midpoint.jpg"><img src="assets/evidence/court-260807-92-midpoint.jpg" alt="Court geometry overlay at the 260807-92 midpoint with PASS source-bound visual registration" loading="lazy" decoding="async"></a>
+        <figcaption><strong>Court checkpoint · Source 260807-92 · 302.619 s · PTS 36,314,278 / frame 36,278.</strong> <code>automatic_court_evidence_v1</code>, midpoint geometry PASS and source-bound registration PASS. This checkpoint does not certify all-frame stability, Rally, KeepTimeline, or export.</figcaption>
+      </figure>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="assets/evidence/tracknet-currentcourt-count-map-260807-92.png"><img src="assets/evidence/tracknet-currentcourt-count-map-260807-92.png" alt="CurrentCourt-admitted TrackNet candidate counts in image-space bins across source phases for 260807-92" loading="lazy" decoding="async"></a>
+        <figcaption><strong>Separate Court-scoped spatial study · Source 260807-92 · 2026-08-07.</strong> CurrentCourt-admitted TrackNet point counts by phase in 1920×1080 image pixels. This is an aggregate bin map, not the raw scatter, a Court-plane projection, or a physical-speed estimate.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section" id="pose" aria-labelledby="pose-title">
+      <div class="section-heading">
+        <p class="eyebrow">EVIDENCE TYPE B · PLAYER AND POSE</p>
+        <h2 id="pose-title">Player and Pose: boxes, skeletons, and experimental Near/Far slots</h2>
+        <p>Near/Far describe image-y pose slots in this research renderer. They are not persistent player identities or Court-side roles.</p>
+      </div>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="assets/evidence/m6-live-match-26100302-017-084s.png"><img src="assets/evidence/m6-live-match-26100302-017-084s.png" alt="Near and Far Pose boxes and skeletons at a frozen M6 LIVE match on source 26100302" loading="lazy" decoding="async"></a>
+        <figcaption><strong>Pose success example · Source 26100302 · 17.084 s · PTS 2,050,048 / frame 2,048.</strong> <code>M6_POSE_MOTION_PLUS_TRACKNET</code>, frozen zero-shot parameters with no target-GT tuning; editorial GT LIVE / M6 MATCH. Both pose slots and TrackNet candidate summary are visible.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section" id="shuttle" aria-labelledby="shuttle-title">
+      <div class="section-heading">
+        <p class="eyebrow">EVIDENCE TYPE C · TRACKNET CANDIDATES</p>
+        <h2 id="shuttle-title">Raw points, frame overlays, and a separate aggregate map</h2>
+        <p>The four-source plot below is the original high-resolution raw-candidate figure. Its points are unassociated and are not a shuttle trajectory.</p>
+      </div>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="assets/evidence/tracknet-raw-scatter-four-source.png"><img src="assets/evidence/tracknet-raw-scatter-four-source.png" alt="Original four-panel scatter of 52,861 TrackNet raw candidates inside existing editorial LIVE intervals" loading="lazy" decoding="async"></a>
+        <figcaption><strong>TrackNet V3 raw candidates · Sources 26100301, 26100302, 26100303, 26100304 · 52,861 points.</strong> Counts are 10,635 / 15,382 / 12,222 / 14,622. The original 2700×1620 image uses image-pixel axes and confidence colors. No association, interpolation, or trajectory lines.</figcaption>
+      </figure>
+      <div class="figure-grid">
+        <figure class="evidence-card" id="false-live-overlay">
+          <a class="image-link" href="assets/evidence/m6-false-live-26100303-006-740s.png"><img src="assets/evidence/m6-false-live-26100303-006-740s.png" alt="TrackNet raw candidate point overlaid on a real frame from source 26100303 during a false LIVE prediction" loading="lazy" decoding="async"></a>
+          <figcaption><strong>Candidate overlay and failure · Source 26100303 · 6.740 s · PTS 808,808 / frame 808.</strong> The raw TrackNet candidate is drawn over the real frame. Editorial GT DEAD / M6 FALSE LIVE. Zero-shot frozen parameters; the candidate is not a verified flight path.</figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/tracknet-aggregated-heatmap-four-source.png"><img src="assets/evidence/tracknet-aggregated-heatmap-four-source.png" alt="Report figure aggregating TrackNet candidate counts into LIVE and DEAD spatial cells" loading="lazy" decoding="async"></a>
+          <figcaption><strong>Aggregated heatmap · Oct 3 four-source report.</strong> Candidate counts are binned into cells. This is a separate aggregate from the raw point scatter above; it does not preserve individual point timestamps or association.</figcaption>
+        </figure>
+      </div>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="assets/evidence/m6-26100302-kwyoke-candidate-012-279s.png"><img src="assets/evidence/m6-26100302-kwyoke-candidate-012-279s.png" alt="First Kwyoke event candidate K0001 with a raw TrackNet point, Near and Far Pose slots, and state timeline" loading="lazy" decoding="async"></a>
+        <figcaption><strong>First Kwyoke candidate for source 26100302 · 12.278933 s · PTS 1,473,472 / frame 1,472.</strong> <code>26100302-K0001</code> is a task-forward HIT_CANDIDATE with <code>physical_hit_verified=false</code>. GT and M6 state are DEAD/MATCH; the frame reports an uncalibrated Hit score and no legal window output.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section" id="timeline" aria-labelledby="timeline-title">
+      <div class="section-heading">
+        <p class="eyebrow">EVIDENCE TYPE D · STATES AND BOUNDARIES</p>
+        <h2 id="timeline-title">Timeline: LIVE, DEAD, UNKNOWN, and START/END evidence</h2>
+        <p>These report figures use different offline model arms. Their captions preserve that distinction.</p>
+      </div>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="assets/evidence/m6-gt-state-timeline-four-source.png"><img src="assets/evidence/m6-gt-state-timeline-four-source.png" alt="Four-source full timeline with editorial GT and frozen M6 A LIVE, DEAD, and UNKNOWN rows" loading="lazy" decoding="async"></a>
+        <figcaption><strong>Full-source categorical state comparison · Oct 3 sources 26100301–26100304 · frozen M6 A.</strong> Each source shows editorial GT and model-state rows separately. Legend from the original plot generator: LIVE green, DEAD slate, UNKNOWN amber. This is an M6 research output.</figcaption>
+      </figure>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="assets/evidence/tail-safe-probability-timeline-four-source.png"><img src="assets/evidence/tail-safe-probability-timeline-four-source.png" alt="Four full-source P(LIVE) probability curves for the tail-safe offline arm with quarantined tails" loading="lazy" decoding="async"></a>
+        <figcaption><strong>Held-out P(LIVE) curves · `PLAYER_TRACKNET_CONTEXT_TAIL_SAFE` · four sources, one date.</strong> Dotted markers identify quarantined tails in the original report. This is not the M6 A categorical timeline above.</figcaption>
+      </figure>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="assets/evidence/boundary-feature-profiles-four-source.png"><img src="assets/evidence/boundary-feature-profiles-four-source.png" alt="Pose and TrackNet feature profiles before and after editorial START and END boundaries" loading="lazy" decoding="async"></a>
+        <figcaption><strong>Boundary feature profiles · Oct 3 four-source offline study.</strong> START/END traces are aligned to editorial boundary time zero. These descriptive feature curves are not predicted boundary events.</figcaption>
+      </figure>
+      <div class="figure-grid">
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-26100302-start-candidate-009-510s.png"><img src="assets/evidence/m6-26100302-start-candidate-009-510s.png" alt="Nearest mapped frame for a frozen M6 START candidate at 9.5 seconds on source 26100302" loading="lazy" decoding="async"></a>
+          <figcaption><strong>START_CANDIDATE · event 9.500 s; sampled frame 9.5095 s · PTS 1,141,140 / frame 1,140.</strong> Source 26100302, editorial GT DEAD and sampled M6 FALSE LIVE. Candidate only; it was not promoted to a formal boundary.</figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-26100302-end-candidate-011-011s.png"><img src="assets/evidence/m6-26100302-end-candidate-011-011s.png" alt="Nearest mapped frame for a frozen M6 END candidate at 11 seconds on source 26100302" loading="lazy" decoding="async"></a>
+          <figcaption><strong>END_CANDIDATE · event 11.000 s; sampled frame 11.011 s · PTS 1,321,320 / frame 1,320.</strong> Source 26100302; the sampled frame is editorial GT DEAD and M6 DEAD. Candidate only; no formal Rally boundary is asserted.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="experiments" aria-labelledby="experiments-title">
+      <div class="section-heading">
+        <p class="eyebrow">EVIDENCE TYPE E · EXPERIMENTS</p>
+        <h2 id="experiments-title">Model performance and measured ablations</h2>
+        <p>Both images come from actual report figures; their metrics and cohorts are not interchangeable.</p>
+      </div>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="assets/evidence/model-performance-comparison-four-source.png"><img src="assets/evidence/model-performance-comparison-four-source.png" alt="Offline model comparison with balanced accuracy, unknown fraction, LIVE precision and recall, and pooled START/END F1" loading="lazy" decoding="async"></a>
+        <figcaption><strong>Offline performance comparison · four sources, one date · ±0.5 s pooled START/END F1.</strong> The original chart compares state metrics and boundary metrics for distinct research arms; see the report for exact tail-safe and unguarded values.</figcaption>
+      </figure>
+      <figure class="evidence-card evidence-card--wide">
+        <a class="image-link" href="assets/evidence/ablation-delta-complete-rally-four-source.png"><img src="assets/evidence/ablation-delta-complete-rally-four-source.png" alt="Measured same-protocol archived ablations showing change in complete Rally boundary-pair counts across four sources" loading="lazy" decoding="async"></a>
+        <figcaption><strong>Archived same-protocol ablation · four sources, one date · change in complete Rally boundary pairs.</strong> Source is the frozen table noted in the figure index. This count-delta experiment is separate from the tail-safe report's 79/148 metrics.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section" id="failures" aria-labelledby="failures-title">
+      <div class="section-heading">
+        <p class="eyebrow">FAILURE ANALYSIS</p>
+        <h2 id="failures-title">Failure Analysis: false LIVE, missing slots, and UNKNOWN at the source tail</h2>
+        <p>Failures are kept visible and labeled with their editorial GT and frozen prediction state.</p>
+      </div>
+      <div class="figure-grid">
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-unknown-far-missing-26100304-000-234s.png"><img src="assets/evidence/m6-unknown-far-missing-26100304-000-234s.png" alt="Opening frame of source 26100304 with a Near detection, missing Far pose slot, and UNKNOWN M6 output" loading="lazy" decoding="async"></a>
+          <figcaption><strong>Missing Far slot · Source 26100304 · 0.234 s · PTS 28,028 / frame 28.</strong> Editorial GT DEAD / M6 UNKNOWN. The frame preserves the absent Far observation instead of inventing a pose.</figcaption>
+        </figure>
+        <figure class="evidence-card">
+          <a class="image-link" href="assets/evidence/m6-26100304-last-sample-557-257s.png"><img src="assets/evidence/m6-26100304-last-sample-557-257s.png" alt="Last mapped 26100304 frame at 557.257 seconds with UNKNOWN output and no valid Near or Far pose slots" loading="lazy" decoding="async"></a>
+          <figcaption><strong>Last mapped sample · Source 26100304 · 557.257 s · PTS 66,870,804 / frame 66,804.</strong> Editorial GT DEAD / M6 UNKNOWN with no valid Near/Far slot. This is the last mapped sample, about 25 ms before source duration, not an END prediction.</figcaption>
+        </figure>
+      </div>
+      <p class="failure-link">The separate <a href="#false-live-overlay">26100303 raw-candidate frame</a> shows another failure: editorial GT DEAD with M6 FALSE LIVE.</p>
+      <div class="callout">
+        <strong>Located evidence gaps:</strong> no reliable Near/Far identity-role swap case and no current TrackNet V3 interpolation/prediction screenshot with selected coordinates. Historical PREDICTED/INTERPOLATED labels without current coordinates are not presented as V3 detections. There is also no verified physical Hit or player attribution in the displayed Kwyoke candidate.
+      </div>
+    </section>
+
+    <section class="section section--methods" id="methods" aria-labelledby="methods-title">
+      <div class="section-heading">
+        <p class="eyebrow">PROVENANCE</p>
+        <h2 id="methods-title">Methods and Provenance</h2>
+      </div>
+      <ul class="resource-list">
+        <li><a href="RESEARCH_REPORT.html">Original self-contained research report</a> <span>— report figures and full experiment context.</span></li>
+        <li><a href="METHODS.md">Methods and evaluation scope</a> <span>— exact metrics, model arms, GT meaning, and production boundary.</span></li>
+        <li><a href="REPRODUCIBILITY.md">Reproducibility and provenance</a> <span>— what was reused and what is withheld.</span></li>
+        <li><a href="evidence-manifest.json">Evidence manifest</a> <span>— per-image source, time/PTS, model/stage, experiment status, and limitations.</span></li>
+      </ul>
+      <p class="privacy-note">This gallery contains selected still images and original report figures. It does not host videos, raw caches, model weights, annotation files, personal identities, or local runtime services.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>BadmintonAutoCut · source-attributed research evidence · <a href="https://github.com/YuCloer/BadmintonAutoCut-Demo">GitHub repository</a></p>
+    <p><a href="#overview">Back to top</a></p>
+  </footer>
+</body>
+</html>

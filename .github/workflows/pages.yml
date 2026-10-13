@@ -1,0 +1,57 @@
+name: Validate and deploy research evidence gallery
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - README.md
+      - ALLOWLIST.json
+      - docs/site/**
+      - scripts/verify_public_site.py
+      - tests/**
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Verify reviewed public payload
+        run: python scripts/verify_public_site.py
+      - name: Run repository tests
+        run: python -m unittest discover -s tests -v
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload only the static gallery
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs/site/
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

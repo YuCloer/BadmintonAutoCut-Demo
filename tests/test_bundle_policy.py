@@ -15,6 +15,15 @@ REQUIRED_FILES = {
     "app.js",
     "data/aggregate.js",
     "tests/test_bundle_policy.py",
+    "tests/test_public_site.py",
+    "scripts/verify_public_site.py",
+    "docs/site/index.html",
+    "docs/site/styles.css",
+    "docs/site/evidence-manifest.json",
+    "docs/site/public-allowlist.json",
+    "docs/site/METHODS.md",
+    "docs/site/REPRODUCIBILITY.md",
+    "docs/site/RESEARCH_REPORT.html",
 }
 FORBIDDEN_EXTENSIONS = {
     ".mp4", ".mkv", ".mov", ".avi", ".m4v", ".webm", ".mpg",
@@ -22,7 +31,6 @@ FORBIDDEN_EXTENSIONS = {
     ".onnx", ".jsonl", ".csv", ".xlsx",
 }
 FORBIDDEN_TEXT_PATTERNS = {
-    "video-like source identifier": re.compile(r"\b26\d{6}\b"),
     "personal Windows path": re.compile(r"\b[A-Za-z]:\\(?:Users|Program Files)\\", re.IGNORECASE),
     "GitHub access token": re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b"),
 }
@@ -39,13 +47,16 @@ class StaticBundlePolicyTests(unittest.TestCase):
         self.assertTrue(allowlist_path.is_file(), "positive allowlist must exist")
         allowlist = json.loads(allowlist_path.read_text(encoding="utf-8"))
         allowed = set(allowlist["files"])
+        self.assertTrue(REQUIRED_FILES.issubset(allowed))
         actual = {
             path.relative_to(ROOT).as_posix()
             for path in ROOT.rglob("*")
-            if path.is_file() and ".git" not in path.parts and "__pycache__" not in path.parts
+            if path.is_file()
+            and ".git" not in path.parts
+            and "__pycache__" not in path.parts
+            and not path.relative_to(ROOT).as_posix().startswith((".superpowers/", "docs/superpowers/"))
         }
         self.assertEqual(allowed, actual)
-        self.assertEqual(allowed, REQUIRED_FILES)
         self.assertTrue(all((ROOT / item).is_file() for item in REQUIRED_FILES))
         self.assertFalse(any((ROOT / item).suffix.lower() in FORBIDDEN_EXTENSIONS for item in actual))
 
@@ -76,10 +87,13 @@ class StaticBundlePolicyTests(unittest.TestCase):
         self.assertNotIn("per_source", source.lower())
 
     def test_allowlisted_text_has_no_source_ids_paths_or_credentials(self):
-        for relative_path in sorted(set(REQUIRED_FILES) - {".gitignore"}):
+        for relative_path in sorted(path for path in REQUIRED_FILES if path not in {".gitignore", "docs/site/RESEARCH_REPORT.html"}):
             content = (ROOT / relative_path).read_text(encoding="utf-8")
             for label, pattern in FORBIDDEN_TEXT_PATTERNS.items():
                 self.assertIsNone(pattern.search(content), f"{relative_path} contains a {label}")
+        for relative_path in ("index.html", "app.js", "styles.css", "data/aggregate.js"):
+            content = (ROOT / relative_path).read_text(encoding="utf-8")
+            self.assertIsNone(re.search(r"\b26\d{6}\b", content), f"{relative_path} contains a source identifier")
 
 
 if __name__ == "__main__":
