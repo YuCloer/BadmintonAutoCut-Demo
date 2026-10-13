@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="description" content="An offline aggregate viewer for badminton Rally boundary research metrics.">
+    <title>Rally Boundary Study — BadmintonAutoCut Demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="data/aggregate.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <div class="eyebrow"><span class="status-dot"></span> Research snapshot <span class="divider">/</span> Offline demo</div>
+        <div class="hero-grid">
+          <div>
+            <h1>Rally boundaries,<br><em>measured in context.</em></h1>
+            <p class="lede">A compact look at two aggregate model arms for finding complete editorial Rally intervals.</p>
+          </div>
+          <aside class="scope-card">
+            <span class="scope-label">Study scope</span>
+            <strong>4 videos</strong>
+            <span>one recording date · source-held-out development</span>
+          </aside>
+        </div>
+        <div class="notice" role="note">
+          <strong>Interpretation:</strong> reference labels are human-edited editorial timelines, not physical LIVE/DEAD truth. This same-date result does not establish new-date generalization or production quality.
+        </div>
+      </header>
+
+      <section class="controls" aria-labelledby="arm-title">
+        <div>
+          <span class="section-kicker">Compare research arms</span>
+          <h2 id="arm-title">Choose a model variant</h2>
+        </div>
+        <label class="select-wrap" for="arm-select">
+          <span class="visually-hidden">Research model arm</span>
+          <select id="arm-select" aria-controls="research-results">
+            <option value="player_tracknet_context">Player + TrackNet context</option>
+            <option value="tail_safe">Tail-safe Player + TrackNet context</option>
+          </select>
+        </label>
+      </section>
+
+      <section id="research-results" class="metrics-panel" aria-live="polite">
+        <div class="score-heading">
+          <div>
+            <span class="section-kicker">Selected arm</span>
+            <h2 id="arm-name">Player + TrackNet context</h2>
+          </div>
+          <div class="threshold"><span>Boundary tolerance</span><strong>±0.5 s</strong></div>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric-card metric-primary">
+            <span class="metric-label">Complete editorial matches</span>
+            <strong><span id="matched">82</span><small> / 148</small></strong>
+            <span class="metric-note">Both ends fall within the boundary tolerance.</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Pair precision</span>
+            <strong id="precision">61.65%</strong>
+            <span class="metric-note">Matched predicted intervals / predicted intervals.</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Pair recall</span>
+            <strong id="recall">55.41%</strong>
+            <span class="metric-note">Matched editorial intervals / 148 reference intervals.</span>
+          </article>
+        </div>
+
+        <article class="chart-card">
+          <div class="chart-heading">
+            <div><span class="section-kicker">Interval retention</span><h3>Complete matches across the cohort</h3></div>
+            <span class="chart-caption">148 editorial intervals</span>
+          </div>
+          <div class="bar-track" role="img" aria-label="Matched complete editorial intervals out of 148">
+            <div id="match-bar" class="bar-fill" style="width:55.41%"></div>
+          </div>
+          <div class="bar-labels"><span id="match-caption">82 matched</span><span>148 reference intervals</span></div>
+        </article>
+
+        <div class="tradeoff-heading">
+          <div><span class="section-kicker">What the cut would miss or keep</span><h2>Retention tradeoff</h2></div>
+          <p>These are editorial-duration comparisons, not physical state labels.</p>
+        </div>
+        <div class="metric-grid tradeoff-grid">
+          <article class="metric-card">
+            <span class="metric-label">LIVE time lost</span>
+            <strong><span id="live-lost">175.60</span><small> s</small></strong>
+            <span class="metric-note">Editorial LIVE seconds outside predicted intervals.</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">DEAD time kept</span>
+            <strong><span id="dead-kept">51.12</span><small> s</small></strong>
+            <span class="metric-note">Editorial DEAD seconds inside predicted intervals.</span>
+          </article>
+          <article class="metric-card state-card">
+            <span class="metric-label">State summary · measured separately</span>
+            <div class="state-line"><span>Unknown</span><strong id="unknown">5.46%</strong></div>
+            <div class="state-line"><span>Balanced accuracy</span><strong id="balanced-accuracy">87.44%</strong></div>
+            <div class="state-line"><span>LIVE / DEAD recall</span><strong><span id="live-recall">84.10%</span> / <span id="dead-recall">90.78%</span></strong></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="method-note">
+        <div class="method-icon" aria-hidden="true">i</div>
+        <div>
+          <h2>Read the result with its limits</h2>
+          <p>The model selector compares an unguarded context arm with a tail-safe arm. The tail-safe arm matched three fewer intervals, while losing 11.27 fewer seconds of editorial LIVE and keeping 11.73 more seconds of editorial DEAD. Both results are same-date research on four videos; neither has formal CurrentCourt admission, production Rally, KeepTimeline acceptance, or export.</p>
+          <p class="method-foot">Editorial labels are not physical truth. A separate two-date replication did not establish generalization. No per-video rows, exact timelines, source identifiers, or source assets are included in this page.</p>
+        </div>
+      </section>
+
+      <footer>
+        <span>BadmintonAutoCut Demo v0.1</span>
+        <span class="footer-meta">Static · no external runtime dependencies <a class="footer-readme" href="README.md" target="_blank" rel="noopener">View local README</a><a class="footer-readme" href="https://github.com/YuCloer/BadmintonAutoCut-Demo#readme" target="_blank" rel="noopener">Project on GitHub</a></span>
+      </footer>
+    </main>
+  </body>
+</html>

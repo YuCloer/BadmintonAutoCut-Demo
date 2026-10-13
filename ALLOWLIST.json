@@ -1,0 +1,23 @@
+{
+  "schema_version": "public_demo_allowlist_v1",
+  "purpose": "Exact positive allowlist for the local static showcase.",
+  "files": [
+    "ALLOWLIST.json",
+    ".gitignore",
+    "LICENSE",
+    "README.md",
+    "app.js",
+    "data/aggregate.js",
+    "index.html",
+    "styles.css",
+    "tests/test_bundle_policy.py"
+  ],
+  "excluded_classes": [
+    "source video or image files",
+    "source identifiers, source paths, timestamps, and per-source rows",
+    "GT, annotation, review, or label files",
+    "models, checkpoints, weights, and model caches",
+    "internal research reports, manifests, and charts",
+    "third-party libraries and external runtime services"
+  ]
+}
