@@ -1,5 +1,7 @@
 # Methods and evaluation scope
 
+[Rendered English methods page](methods.html) · [研究方法中文版](zh/methods.html) · [Bilingual research portfolio](./)
+
 This gallery shows historical model outputs and research figures. It does not certify an automatic editor or change the production pipeline.
 
 ## Oct 3, four-source visual study

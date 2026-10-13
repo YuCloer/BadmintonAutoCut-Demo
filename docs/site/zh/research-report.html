@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="四源离线 LIVE/DEAD 与编辑 Rally 区间研究结果摘要，并提供完整原始报告链接。">
+  <title>研究结果 — BadmintonAutoCut</title>
+  <link rel="canonical" href="https://yucloer.github.io/BadmintonAutoCut-Demo/zh/research-report.html">
+  <link rel="alternate" hreflang="en" href="https://yucloer.github.io/BadmintonAutoCut-Demo/research-report.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://yucloer.github.io/BadmintonAutoCut-Demo/zh/research-report.html">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳转到研究结果</a>
+  <header class="site-header"><div class="topline">
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">BA</span><span>BadmintonAutoCut <span class="muted">/ 研究结果</span></span></a>
+    <nav class="language-switch" aria-label="语言切换"><a href="../research-report.html" lang="en" hreflang="en">English</a><a href="./research-report.html" aria-current="page">中文</a></nav>
+  </div></header>
+  <nav class="section-nav" aria-label="网站导航"><div class="section-nav-inner"><a href="./">首页</a><a href="./#experiments">交互式对照</a><a href="methods.html">研究方法</a><a href="reproducibility.html">来源</a></div></nav>
+  <main class="site-main" id="main">
+    <article class="section method-prose">
+      <p class="eyebrow">研究结果 · 中文概览</p>
+      <h1>LIVE/DEAD 与 Rally 区间离线研究</h1>
+      <p>2026-10-12 报告记录了离线编辑状态与边界建模的实际进步，但尚未达到生产自动剪辑验收。本页概述主要对照；完整技术报告保留为中文原文。</p>
+
+      <h2>研究范围</h2>
+      <p>该对照覆盖录制于 2026-10-03 的四段完整视频，参考集包含 148 个人工编辑区间。编辑标签表示剪辑相关性，不是羽毛球实际处于比赛中或真实 Hit 的物理真值。两个模型分支均在这一拍摄日数据上开发，不能据此证明跨日期泛化。</p>
+
+      <h2>两个独立模型分支</h2>
+      <div class="comparison-table-wrap">
+        <table class="comparison-table">
+          <caption>完整区间配对要求开始和结束边界均位于 ±0.5 秒内。</caption>
+          <thead><tr><th scope="col">离线分支</th><th scope="col">平衡准确率</th><th scope="col">UNKNOWN</th><th scope="col">START</th><th scope="col">END</th><th scope="col">完整配对</th><th scope="col">精确率</th><th scope="col">召回率</th><th scope="col">LIVE 损失</th><th scope="col">DEAD 保留</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>PLAYER_TRACKNET_CONTEXT_TAIL_SAFE</code></th><td>87.75%</td><td>5.08%</td><td>139/148</td><td>93/148</td><td>79/148</td><td>59.85%</td><td>53.38%</td><td>164.33 秒</td><td>62.85 秒</td></tr>
+            <tr><th scope="row"><code>PLAYER_TRACKNET_CONTEXT</code></th><td>87.44%</td><td>5.46%</td><td>138/148</td><td>100/148</td><td>82/148</td><td>61.65%</td><td>55.41%</td><td>175.60 秒</td><td>51.12 秒</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>如何解读结果</h2>
+      <p>Tail-safe 命中 148 个编辑区间中的 79 个，比未隔离尾部的分支少 3 个。它损失 164.33 秒编辑 LIVE，并保留 62.85 秒编辑 DEAD。未隔离尾部的上下文分支命中 82/148，损失 175.60 秒编辑 LIVE，并保留 51.12 秒编辑 DEAD。</p>
+      <p>因此，Tail-safe 少损失 11.27 秒 LIVE，同时多保留 11.73 秒 DEAD。87.75% 平衡准确率属于状态分类，不是 Rally 检测准确率。完整区间匹配是另一个任务，分母也不同。</p>
+
+      <h2>仍未得到证明的内容</h2>
+      <ul>
+        <li>正式生产消费所需的 Court、时序稳定性和事件归属合同在该研究中尚未满足。</li>
+        <li>该研究的正式生产 Rally 区间、KeepTimeline 输出与新增导出验收数均为零。</li>
+        <li>证据不能证明物理 LIVE/DEAD 真值、已验证羽毛球轨迹或新拍摄日期上的泛化。</li>
+        <li>EventFirst 仍是已实现的生产路径，状态为 <code>PRODUCTION_NOT_READY</code>。</li>
+      </ul>
+
+      <div class="hero-actions"><a class="button" href="../RESEARCH_REPORT.html">打开完整原始报告</a><a class="button button--quiet" href="./#experiments">交互式指标对照</a></div>
+      <p class="small-note">原始报告包含完整表格、实验协议和内嵌图表。本页提供便于阅读的研究结果概览，不能取代完整原始报告。</p>
+    </article>
+  </main>
+  <footer class="site-footer"><p>研究结果 · BadmintonAutoCut 研究作品集</p><div class="footer-links"><a href="./">首页</a><a href="methods.html">研究方法</a><a href="#main">返回顶部</a></div></footer>
+</body>
+</html>

@@ -4,7 +4,20 @@ on:
   push:
     branches: [main]
     paths:
+      - index.html
       - README.md
+      - README.zh-CN.md
+      - ALLOWLIST.json
+      - docs/site/**
+      - scripts/verify_public_site.py
+      - tests/**
+      - .github/workflows/pages.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - index.html
+      - README.md
+      - README.zh-CN.md
       - ALLOWLIST.json
       - docs/site/**
       - scripts/verify_public_site.py
@@ -43,6 +56,7 @@ jobs:
           path: docs/site/
 
   deploy:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -1,5 +1,7 @@
 # Reproducibility and evidence provenance
 
+[Rendered English provenance page](reproducibility.html) · [可复现性中文版](zh/reproducibility.html) · [Bilingual research portfolio](./)
+
 This repository publishes a source-attributed visual record, not the original research dataset. The [evidence manifest](evidence-manifest.json) identifies each public figure, model/stage, experiment state, source/time binding where applicable, supported claim, and limitation.
 
 ## What was reused

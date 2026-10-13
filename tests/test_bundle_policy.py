@@ -35,6 +35,11 @@ FORBIDDEN_TEXT_PATTERNS = {
     "GitHub access token": re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b"),
 }
 TRUSTED_README_LINK = "https://github.com/yucloer/badmintonautocut-demo#readme"
+TRUSTED_PORTFOLIO_LINKS = [
+    "https://yucloer.github.io/badmintonautocut-demo/",
+    "https://yucloer.github.io/badmintonautocut-demo/zh/",
+    TRUSTED_README_LINK,
+]
 
 
 def external_links(html):
@@ -67,7 +72,7 @@ class StaticBundlePolicyTests(unittest.TestCase):
         page = (ROOT / "index.html").read_text(encoding="utf-8").lower()
         app = (ROOT / "app.js").read_text(encoding="utf-8").lower()
         assets = page + app + (ROOT / "styles.css").read_text(encoding="utf-8").lower()
-        self.assertEqual(external_links(page), [TRUSTED_README_LINK])
+        self.assertEqual(external_links(page), TRUSTED_PORTFOLIO_LINKS)
         self.assertIn('href="readme.md"', page)
         self.assertIn('id="research-results"', page)
         self.assertIn('aria-controls="research-results"', page)

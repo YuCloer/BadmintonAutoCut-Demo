@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Figure provenance, public payload scope, and reproducibility limits for the BadmintonAutoCut research gallery.">
+  <title>Reproducibility and Provenance — BadmintonAutoCut</title>
+  <link rel="canonical" href="https://yucloer.github.io/BadmintonAutoCut-Demo/reproducibility.html">
+  <link rel="alternate" hreflang="en" href="https://yucloer.github.io/BadmintonAutoCut-Demo/reproducibility.html">
+  <link rel="alternate" hreflang="zh-CN" href="https://yucloer.github.io/BadmintonAutoCut-Demo/zh/reproducibility.html">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to reproducibility</a>
+  <header class="site-header"><div class="topline">
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">BA</span><span>BadmintonAutoCut <span class="muted">/ Reproducibility</span></span></a>
+    <nav class="language-switch" aria-label="Language"><a href="./" aria-label="English home">Home</a><a href="zh/reproducibility.html" lang="zh-CN" hreflang="zh-CN">中文</a></nav>
+  </div></header>
+  <nav class="section-nav" aria-label="Site navigation"><div class="section-nav-inner"><a href="./">Overview</a><a href="./#gallery">Evidence gallery</a><a href="methods.html">Methods</a><a href="research-report.html">Results</a></div></nav>
+  <main class="site-main" id="main">
+    <article class="section method-prose">
+      <p class="eyebrow">Technical reference · Provenance</p>
+      <h1>Reproducibility and figure provenance</h1>
+      <p>This repository publishes selected, source-attributed visual evidence. It is not the original research dataset or a runnable inference package.</p>
+
+      <h2>Where the figures come from</h2>
+      <ul>
+        <li>The Court geometry and CurrentCourt count map are from a separate August 7 source-bound checkpoint study.</li>
+        <li>The Pose, candidate, state-timeline, and boundary screenshots are frozen visualizations from the October 3 four-source cohort.</li>
+        <li>The Tail-safe probability plot, model-performance chart, and boundary feature profile are existing offline report figures.</li>
+        <li>The archived ablation chart is a separate table-derived study record; it does not share the Tail-safe metric denominator.</li>
+        <li>The TrackNet scatter is the original high-resolution raw-candidate figure. Its points are not connected into tracks.</li>
+      </ul>
+      <p>Images are reused as-is; this site does not create synthetic detections, trajectories, GT rows, or confidence curves.</p>
+
+      <h2>Evidence manifest</h2>
+      <p>The <a href="evidence-manifest.json">machine-readable evidence manifest</a> records each figure's asset path and dimensions, source binding where applicable, source time and PTS for sampled frames, model or stage, experiment status, supported claim, limitation, and provenance.</p>
+      <p>The technical details are available from each figure's expandable caption. The main page keeps those fields out of the reading path while preserving access for researchers.</p>
+
+      <h2>Public package boundary</h2>
+      <p>The site deploys from <code>docs/site/</code> using an exact positive file allowlist. The public bundle contains selected still images, report figures, explanatory pages, and aggregate comparison metrics. It excludes source video and proxies, private checkpoints, model caches, raw candidate tables, annotation and review files, identity data, and local service payloads.</p>
+      <p>The repository-level <code>ALLOWLIST.json</code> and the site-level <a href="public-allowlist.json">public asset list</a> define separate source-control and Pages boundaries.</p>
+
+      <h2>What can and cannot be reproduced here</h2>
+      <ul>
+        <li>Readers can inspect each published image at its original stored resolution and trace its documented claim to the manifest.</li>
+        <li>The two offline arms' aggregate metrics can be compared from the published data file and source report.</li>
+        <li>The repository checks validate the public payload, image files, links, study metrics, and bilingual routes.</li>
+        <li>The numerical evaluation and inference cannot be rerun from this repository alone because source video, raw caches, weights, and annotation files are not included.</li>
+      </ul>
+
+      <h2>Study separation</h2>
+      <p>The October 3 visual cohort, October 12 fusion evaluation, August 7 Court checkpoint, and October 13 archived ablation have different protocols and purposes. Their figures must not be combined into a fictional single execution. The editorial reference does not establish physical shuttle or Hit truth, and the same-date study does not establish cross-date generalization.</p>
+
+      <h2>Production status</h2>
+      <p>EventFirst remains the implemented production path with status <code>PRODUCTION_NOT_READY</code>. The public offline results report zero accepted production Rally intervals, zero accepted KeepTimeline outputs, and zero new exports. Nothing in this gallery certifies a production automatic editor.</p>
+      <p><a href="REPRODUCIBILITY.md">Open the maintained Markdown provenance notes</a> · <a href="evidence-manifest.json">Open evidence manifest</a> · <a href="RESEARCH_REPORT.html">Open the complete original research report</a></p>
+    </article>
+  </main>
+  <footer class="site-footer"><p>Provenance · BadmintonAutoCut research portfolio</p><div class="footer-links"><a href="./">Home</a><a href="methods.html">Methods</a><a href="#main">Back to top</a></div></footer>
+</body>
+</html>
